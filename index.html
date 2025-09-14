@@ -55,6 +55,20 @@
             width: 200px;
         }
 
+        @media (max-width: 600px) {
+            .mode-selection {
+                grid-template-columns: 1fr;
+                max-width: 300px;
+            }
+            
+            .mode-selection .mode-btn:nth-child(5) {
+                grid-column: 1;
+                justify-self: center;
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
         .mode-btn {
             font-size: 1.3em;
             padding: 20px 40px;
@@ -100,8 +114,15 @@
         .game-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 20px;
+        }
+
+        .game-header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
         }
 
         .mode-display {
@@ -259,6 +280,28 @@
             color: #333;
         }
 
+        .give-up-btn {
+            font-size: 0.9em;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .give-up-btn:hover {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .give-up-btn:active {
+            transform: translateY(0);
+        }
+
         .game-buttons {
             display: flex;
             flex-direction: column;
@@ -310,22 +353,17 @@
                 font-size: 1.8em;
             }
             
-            .mode-selection {
-                grid-template-columns: 1fr;
-            }
-            
-            .mode-selection .mode-btn:nth-child(5) {
-                grid-column: 1;
-                justify-self: center;
-                width: 200px;
-            }
-            
             .question {
                 font-size: 1.5em;
             }
             
             .timer {
                 font-size: 1.5em;
+                padding: 6px 12px;
+            }
+            
+            .give-up-btn {
+                font-size: 0.8em;
                 padding: 6px 12px;
             }
             
@@ -371,7 +409,10 @@
                     <div class="mode-display" id="modeDisplay">Mode</div>
                     <div class="score">Score: <span id="score">0</span></div>
                 </div>
-                <div class="timer" id="timer">15</div>
+                <div class="game-header-right">
+                    <div class="timer" id="timer">15</div>
+                    <button id="giveUpBtn" class="give-up-btn">Give Up</button>
+                </div>
             </div>
             <div class="question" id="question"></div>
             
@@ -432,6 +473,7 @@
                 this.playAgainBtn = document.getElementById('playAgainBtn');
                 this.switchModeBtn = document.getElementById('switchModeBtn');
                 this.clearBtn = document.getElementById('clearBtn');
+                this.giveUpBtn = document.getElementById('giveUpBtn');
                 this.scoreElement = document.getElementById('score');
                 this.questionElement = document.getElementById('question');
                 this.answerInput = document.getElementById('answerInput');
@@ -451,6 +493,7 @@
                 this.playAgainBtn.addEventListener('click', () => this.resetGame());
                 this.switchModeBtn.addEventListener('click', () => this.switchMode());
                 this.clearBtn.addEventListener('click', () => this.clearInput());
+                this.giveUpBtn.addEventListener('click', () => this.giveUp());
                 
                 this.answerInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
@@ -638,6 +681,10 @@
                 this.gameScreen.classList.add('hidden');
                 this.gameOverScreen.classList.add('hidden');
                 this.stopTimer();
+            }
+
+            giveUp() {
+                this.endGame(false);
             }
 
             updateScore() {
