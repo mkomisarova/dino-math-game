@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Practice Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            align-items: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .mode-selection .mode-btn:nth-child(5) {
+            grid-column: 1 / -1;
+            justify-self: center;
+            width: 200px;
+        }
+
+        .mode-btn {
+            font-size: 1.3em;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            width: 200px;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-btn:active {
+            transform: translateY(0);
+        }
+
+        .multiplication-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .addition-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .subtraction-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .division-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .mixed-btn {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffd93d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .score {
+            font-size: 1.4em;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .timer {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ffd93d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 2px solid #ffd93d;
+        }
+
+        .timer.warning {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .question {
+            font-size: 1.8em;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .answer-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .answer-input {
+            font-size: 1.4em;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+            width: 180px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .number-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+
+        .number-btn {
+            font-size: 1.2em;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .number-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .number-btn:active {
+            transform: scale(0.95);
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        button {
+            font-size: 1.1em;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .game-over {
+            font-size: 1.6em;
+            margin: 20px 0;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .victory-message {
+            font-size: 1.8em;
+            margin: 20px 0;
+            color: #4ecdc4;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .play-again-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .switch-mode-btn {
+            background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+            color: #333;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+            color: #333;
+        }
+
+        .game-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .score-feedback {
+            position: absolute;
+            top: -10px;
+            right: -40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 1000;
+            animation: scoreFeedbackAnimation 1.5s ease-out forwards;
+        }
+
+        .score-feedback.positive {
+            color: #4ecdc4;
+        }
+
+        .score-feedback.negative {
+            color: #ff6b6b;
+        }
+
+        @keyframes scoreFeedbackAnimation {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-40px) scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .mode-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .mode-selection .mode-btn:nth-child(5) {
+                grid-column: 1;
+                justify-self: center;
+                width: 200px;
+            }
+            
+            .question {
+                font-size: 1.5em;
+            }
+            
+            .timer {
+                font-size: 1.5em;
+                padding: 6px 12px;
+            }
+            
+            .answer-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .answer-input {
+                width: 160px;
+            }
+            
+            .number-keyboard {
+                max-width: 250px;
+            }
+            
+            .number-btn {
+                padding: 12px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Math Practice Game</h1>
+        
+        <!-- Mode Selection Screen -->
+        <div id="modeSelectionScreen">
+            <div class="mode-selection">
+                <button id="multiplicationBtn" class="mode-btn multiplication-btn">Multiplication</button>
+                <button id="additionBtn" class="mode-btn addition-btn">Addition</button>
+                <button id="subtractionBtn" class="mode-btn subtraction-btn">Subtraction</button>
+                <button id="divisionBtn" class="mode-btn division-btn">Division</button>
+                <button id="mixedBtn" class="mode-btn mixed-btn">Mixed</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="game-header">
+                <div>
+                    <div class="mode-display" id="modeDisplay">Mode</div>
+                    <div class="score">Score: <span id="score">0</span></div>
+                </div>
+                <div class="timer" id="timer">15</div>
+            </div>
+            <div class="question" id="question"></div>
+            
+            <div class="answer-section">
+                <input type="number" id="answerInput" class="answer-input" placeholder="Your answer">
+                <button id="submitBtn" class="submit-btn">Submit</button>
+            </div>
+            
+            <!-- Number Keyboard -->
+            <div class="number-keyboard">
+                <button class="number-btn" data-number="1">1</button>
+                <button class="number-btn" data-number="2">2</button>
+                <button class="number-btn" data-number="3">3</button>
+                <button class="number-btn" data-number="4">4</button>
+                <button class="number-btn" data-number="5">5</button>
+                <button class="number-btn" data-number="6">6</button>
+                <button class="number-btn" data-number="7">7</button>
+                <button class="number-btn" data-number="8">8</button>
+                <button class="number-btn" data-number="9">9</button>
+                <button class="number-btn clear-btn" id="clearBtn">Clear</button>
+                <button class="number-btn" data-number="0">0</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="hidden">
+            <div class="game-over" id="gameOverMessage"></div>
+            <div class="game-buttons">
+                <button id="playAgainBtn" class="play-again-btn">Play Again</button>
+                <button id="switchModeBtn" class="switch-mode-btn">Switch Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MathPracticeGame {
+            constructor() {
+                this.score = 0;
+                this.currentAnswer = 0;
+                this.gameMode = 'multiplication'; // 'multiplication', 'addition', 'subtraction', 'division', or 'mixed'
+                this.timer = null;
+                this.timeLeft = 15;
+                this.questionStartTime = 0;
+                this.initializeElements();
+                this.attachEventListeners();
+            }
+
+            initializeElements() {
+                this.modeSelectionScreen = document.getElementById('modeSelectionScreen');
+                this.gameScreen = document.getElementById('gameScreen');
+                this.gameOverScreen = document.getElementById('gameOverScreen');
+                this.multiplicationBtn = document.getElementById('multiplicationBtn');
+                this.additionBtn = document.getElementById('additionBtn');
+                this.subtractionBtn = document.getElementById('subtractionBtn');
+                this.divisionBtn = document.getElementById('divisionBtn');
+                this.mixedBtn = document.getElementById('mixedBtn');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.playAgainBtn = document.getElementById('playAgainBtn');
+                this.switchModeBtn = document.getElementById('switchModeBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.scoreElement = document.getElementById('score');
+                this.questionElement = document.getElementById('question');
+                this.answerInput = document.getElementById('answerInput');
+                this.gameOverMessage = document.getElementById('gameOverMessage');
+                this.timerElement = document.getElementById('timer');
+                this.modeDisplay = document.getElementById('modeDisplay');
+                this.numberButtons = document.querySelectorAll('.number-btn[data-number]');
+            }
+
+            attachEventListeners() {
+                this.multiplicationBtn.addEventListener('click', () => this.startGame('multiplication'));
+                this.additionBtn.addEventListener('click', () => this.startGame('addition'));
+                this.subtractionBtn.addEventListener('click', () => this.startGame('subtraction'));
+                this.divisionBtn.addEventListener('click', () => this.startGame('division'));
+                this.mixedBtn.addEventListener('click', () => this.startGame('mixed'));
+                this.submitBtn.addEventListener('click', () => this.submitAnswer());
+                this.playAgainBtn.addEventListener('click', () => this.resetGame());
+                this.switchModeBtn.addEventListener('click', () => this.switchMode());
+                this.clearBtn.addEventListener('click', () => this.clearInput());
+                
+                this.answerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.submitAnswer();
+                    }
+                });
+
+                // Number keyboard event listeners
+                this.numberButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const number = btn.getAttribute('data-number');
+                        this.appendToInput(number);
+                    });
+                });
+            }
+
+            startGame(mode) {
+                this.gameMode = mode;
+                this.score = 0;
+                this.updateScore();
+                this.updateModeDisplay();
+                this.modeSelectionScreen.classList.add('hidden');
+                this.gameScreen.classList.remove('hidden');
+                this.gameOverScreen.classList.add('hidden');
+                this.generateQuestion();
+                this.startTimer();
+                this.answerInput.focus();
+            }
+
+            generateQuestion() {
+                let num1, num2, operator, answer;
+                let currentMode = this.gameMode;
+                
+                // For mixed mode, randomly select one of the four operation types
+                if (currentMode === 'mixed') {
+                    const modes = ['multiplication', 'addition', 'subtraction', 'division'];
+                    currentMode = modes[Math.floor(Math.random() * modes.length)];
+                }
+                
+                switch (currentMode) {
+                    case 'multiplication':
+                        num1 = Math.floor(Math.random() * 10) + 1;
+                        num2 = Math.floor(Math.random() * 10) + 1;
+                        operator = '×';
+                        answer = num1 * num2;
+                        break;
+                        
+                    case 'addition':
+                        num1 = Math.floor(Math.random() * 50) + 1;
+                        num2 = Math.floor(Math.random() * 50) + 1;
+                        operator = '+';
+                        answer = num1 + num2;
+                        break;
+                        
+                    case 'subtraction':
+                        // Generate two numbers between 1-100, ensure larger - smaller
+                        num1 = Math.floor(Math.random() * 100) + 1;
+                        num2 = Math.floor(Math.random() * 100) + 1;
+                        if (num1 < num2) {
+                            [num1, num2] = [num2, num1]; // Swap to ensure num1 >= num2
+                        }
+                        operator = '−';
+                        answer = num1 - num2;
+                        break;
+                        
+                    case 'division':
+                        // Generate from multiplication table: (a × b) ÷ b = a
+                        num1 = Math.floor(Math.random() * 10) + 1;
+                        num2 = Math.floor(Math.random() * 10) + 1;
+                        const dividend = num1 * num2;
+                        operator = '÷';
+                        answer = num1;
+                        num1 = dividend; // Display the dividend, not the original num1
+                        break;
+                }
+                
+                this.currentAnswer = answer;
+                this.questionElement.textContent = `${num1} ${operator} ${num2} = ?`;
+                this.answerInput.value = '';
+            }
+
+            startTimer() {
+                this.timeLeft = 15;
+                this.questionStartTime = Date.now();
+                this.updateTimerDisplay();
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimerDisplay();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            updateTimerDisplay() {
+                this.timerElement.textContent = this.timeLeft;
+                if (this.timeLeft <= 5) {
+                    this.timerElement.classList.add('warning');
+                } else {
+                    this.timerElement.classList.remove('warning');
+                }
+            }
+
+            stopTimer() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+            }
+
+            appendToInput(number) {
+                this.answerInput.value += number;
+            }
+
+            clearInput() {
+                this.answerInput.value = '';
+            }
+
+            submitAnswer() {
+                const userAnswer = parseInt(this.answerInput.value);
+                
+                if (userAnswer === this.currentAnswer) {
+                    // Calculate points based on speed
+                    const timeElapsed = (Date.now() - this.questionStartTime) / 1000;
+                    const points = this.calculatePoints(timeElapsed);
+                    this.score += points;
+                    this.updateScore();
+                    this.showScoreFeedback(points, true);
+                    this.stopTimer();
+                    
+                    // Check if player won (reached 500 points)
+                    if (this.score >= 500) {
+                        this.endGame(true);
+                        return;
+                    }
+                    
+                    this.generateQuestion();
+                    this.startTimer();
+                } else {
+                    // Wrong answer: subtract 5 points and continue
+                    this.score -= 5;
+                    this.updateScore();
+                    this.showScoreFeedback(5, false);
+                    this.stopTimer();
+                    this.generateQuestion();
+                    this.startTimer();
+                    
+                    // Check if score is negative (game over condition)
+                    if (this.score < 0) {
+                        this.endGame(false);
+                    }
+                }
+            }
+
+            calculatePoints(timeElapsed) {
+                if (timeElapsed <= 3) return 5;
+                if (timeElapsed <= 6) return 4;
+                if (timeElapsed <= 9) return 3;
+                if (timeElapsed <= 12) return 2;
+                if (timeElapsed <= 15) return 1;
+                return 0; // Should not happen as timer would have ended
+            }
+
+            endGame(isVictory = false) {
+                this.stopTimer();
+                this.gameScreen.classList.add('hidden');
+                this.gameOverScreen.classList.remove('hidden');
+                
+                if (isVictory) {
+                    this.gameOverMessage.innerHTML = `🎉 You won! Great job! 🎉<br>Final Score: ${this.score}`;
+                    this.gameOverMessage.className = 'victory-message';
+                } else {
+                    this.gameOverMessage.textContent = `Game over! Your final score is ${this.score}.`;
+                    this.gameOverMessage.className = 'game-over';
+                }
+            }
+
+            resetGame() {
+                this.startGame(this.gameMode);
+            }
+
+            switchMode() {
+                this.modeSelectionScreen.classList.remove('hidden');
+                this.gameScreen.classList.add('hidden');
+                this.gameOverScreen.classList.add('hidden');
+                this.stopTimer();
+            }
+
+            updateScore() {
+                this.scoreElement.textContent = this.score;
+            }
+
+            updateModeDisplay() {
+                const modeNames = {
+                    'multiplication': 'Multiplication',
+                    'addition': 'Addition',
+                    'subtraction': 'Subtraction',
+                    'division': 'Division',
+                    'mixed': 'Mixed'
+                };
+                this.modeDisplay.textContent = modeNames[this.gameMode];
+            }
+
+            showScoreFeedback(points, isPositive) {
+                const feedback = document.createElement('div');
+                feedback.className = `score-feedback ${isPositive ? 'positive' : 'negative'}`;
+                feedback.textContent = `${isPositive ? '+' : '-'}${points}`;
+                
+                // Add to the score element
+                this.scoreElement.appendChild(feedback);
+                
+                // Remove the feedback element after animation
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.parentNode.removeChild(feedback);
+                    }
+                }, 1500);
+            }
+        }
+
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MathPracticeGame();
+        });
+    </script>
+</body>
+</html>
