@@ -58,14 +58,21 @@
         @media (max-width: 600px) {
             .mode-selection {
                 grid-template-columns: 1fr;
-                max-width: 300px;
+                max-width: 100%;
+                width: 100%;
+                justify-items: center;
+            }
+            
+            .mode-selection .mode-btn {
+                width: 80%;
+                max-width: 280px;
             }
             
             .mode-selection .mode-btn:nth-child(5) {
                 grid-column: 1;
                 justify-self: center;
-                width: 100%;
-                max-width: 200px;
+                width: 80%;
+                max-width: 280px;
             }
         }
 
