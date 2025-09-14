@@ -55,6 +55,22 @@
             width: 200px;
         }
 
+        .operation-mode-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .operation-mode-selection .mode-btn:nth-child(3) {
+            grid-column: 1 / -1;
+            justify-self: center;
+            width: 200px;
+            white-space: nowrap;
+        }
+
         @media (max-width: 600px) {
             .mode-selection {
                 grid-template-columns: 1fr;
@@ -74,6 +90,23 @@
                 width: 80%;
                 max-width: 280px;
             }
+
+            .operation-mode-selection {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .operation-mode-selection .mode-btn {
+                width: 80%;
+                max-width: 280px;
+            }
+            
+            .operation-mode-selection .mode-btn:nth-child(3) {
+                grid-column: 1;
+                width: 80%;
+                max-width: 280px;
+            }
         }
 
         .mode-btn {
@@ -87,6 +120,11 @@
             transition: all 0.3s ease;
             font-weight: bold;
             width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .mode-btn:hover {
@@ -118,6 +156,18 @@
             background: linear-gradient(45deg, #9b59b6, #8e44ad);
         }
 
+        .mini-btn {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+
+        .level-btn {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
         .game-header {
             display: flex;
             justify-content: space-between;
@@ -137,6 +187,14 @@
             font-weight: bold;
             color: #ffd93d;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-display {
+            font-size: 1em;
+            font-weight: bold;
+            color: #4ecdc4;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-top: 5px;
         }
 
         .score {
@@ -217,6 +275,11 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .number-btn:hover {
@@ -243,6 +306,11 @@
             transition: all 0.3s ease;
             margin: 8px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
         }
 
         button:hover {
@@ -297,6 +365,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .give-up-btn:hover {
@@ -409,11 +482,22 @@
             </div>
         </div>
 
+        <!-- Operation Mode Selection Screen -->
+        <div id="operationModeScreen" class="hidden">
+            <h2 id="operationTitle">Choose Mode</h2>
+            <div class="operation-mode-selection">
+                <button id="miniModeBtn" class="mode-btn mini-btn">Mini Version</button>
+                <button id="levelModeBtn" class="mode-btn level-btn">Level Mode</button>
+                <button id="backToModesBtn" class="mode-btn back-btn">Back to Modes</button>
+            </div>
+        </div>
+
         <!-- Game Screen -->
         <div id="gameScreen" class="hidden">
             <div class="game-header">
                 <div>
                     <div class="mode-display" id="modeDisplay">Mode</div>
+                    <div class="level-display" id="levelDisplay"></div>
                     <div class="score">Score: <span id="score">0</span></div>
                 </div>
                 <div class="game-header-right">
@@ -460,6 +544,9 @@
                 this.score = 0;
                 this.currentAnswer = 0;
                 this.gameMode = 'multiplication'; // 'multiplication', 'addition', 'subtraction', 'division', or 'mixed'
+                this.gameType = 'mini'; // 'mini' or 'level'
+                this.currentLevel = 1;
+                this.correctStreak = 0;
                 this.timer = null;
                 this.timeLeft = 15;
                 this.questionStartTime = 0;
@@ -469,6 +556,7 @@
 
             initializeElements() {
                 this.modeSelectionScreen = document.getElementById('modeSelectionScreen');
+                this.operationModeScreen = document.getElementById('operationModeScreen');
                 this.gameScreen = document.getElementById('gameScreen');
                 this.gameOverScreen = document.getElementById('gameOverScreen');
                 this.multiplicationBtn = document.getElementById('multiplicationBtn');
@@ -476,6 +564,9 @@
                 this.subtractionBtn = document.getElementById('subtractionBtn');
                 this.divisionBtn = document.getElementById('divisionBtn');
                 this.mixedBtn = document.getElementById('mixedBtn');
+                this.miniModeBtn = document.getElementById('miniModeBtn');
+                this.levelModeBtn = document.getElementById('levelModeBtn');
+                this.backToModesBtn = document.getElementById('backToModesBtn');
                 this.submitBtn = document.getElementById('submitBtn');
                 this.playAgainBtn = document.getElementById('playAgainBtn');
                 this.switchModeBtn = document.getElementById('switchModeBtn');
@@ -487,15 +578,20 @@
                 this.gameOverMessage = document.getElementById('gameOverMessage');
                 this.timerElement = document.getElementById('timer');
                 this.modeDisplay = document.getElementById('modeDisplay');
+                this.levelDisplay = document.getElementById('levelDisplay');
+                this.operationTitle = document.getElementById('operationTitle');
                 this.numberButtons = document.querySelectorAll('.number-btn[data-number]');
             }
 
             attachEventListeners() {
-                this.multiplicationBtn.addEventListener('click', () => this.startGame('multiplication'));
-                this.additionBtn.addEventListener('click', () => this.startGame('addition'));
-                this.subtractionBtn.addEventListener('click', () => this.startGame('subtraction'));
-                this.divisionBtn.addEventListener('click', () => this.startGame('division'));
-                this.mixedBtn.addEventListener('click', () => this.startGame('mixed'));
+                this.multiplicationBtn.addEventListener('click', () => this.selectOperation('multiplication'));
+                this.additionBtn.addEventListener('click', () => this.selectOperation('addition'));
+                this.subtractionBtn.addEventListener('click', () => this.selectOperation('subtraction'));
+                this.divisionBtn.addEventListener('click', () => this.selectOperation('division'));
+                this.mixedBtn.addEventListener('click', () => this.selectOperation('mixed'));
+                this.miniModeBtn.addEventListener('click', () => this.startGame(this.selectedOperation, 'mini'));
+                this.levelModeBtn.addEventListener('click', () => this.startGame(this.selectedOperation, 'level'));
+                this.backToModesBtn.addEventListener('click', () => this.backToModes());
                 this.submitBtn.addEventListener('click', () => this.submitAnswer());
                 this.playAgainBtn.addEventListener('click', () => this.resetGame());
                 this.switchModeBtn.addEventListener('click', () => this.switchMode());
@@ -517,12 +613,36 @@
                 });
             }
 
-            startGame(mode) {
+            selectOperation(operation) {
+                this.selectedOperation = operation;
+                const operationNames = {
+                    'multiplication': 'Multiplication',
+                    'addition': 'Addition',
+                    'subtraction': 'Subtraction',
+                    'division': 'Division',
+                    'mixed': 'Mixed'
+                };
+                this.operationTitle.textContent = `${operationNames[operation]} - Choose Mode`;
+                this.modeSelectionScreen.classList.add('hidden');
+                this.operationModeScreen.classList.remove('hidden');
+            }
+
+            backToModes() {
+                this.operationModeScreen.classList.add('hidden');
+                this.modeSelectionScreen.classList.remove('hidden');
+            }
+
+            startGame(mode, type = 'mini') {
                 this.gameMode = mode;
+                this.gameType = type;
                 this.score = 0;
+                this.currentLevel = 1;
+                this.correctStreak = 0;
                 this.updateScore();
                 this.updateModeDisplay();
+                this.updateLevelDisplay();
                 this.modeSelectionScreen.classList.add('hidden');
+                this.operationModeScreen.classList.add('hidden');
                 this.gameScreen.classList.remove('hidden');
                 this.gameOverScreen.classList.add('hidden');
                 this.generateQuestion();
@@ -540,46 +660,319 @@
                     currentMode = modes[Math.floor(Math.random() * modes.length)];
                 }
                 
-                switch (currentMode) {
-                    case 'multiplication':
-                        num1 = Math.floor(Math.random() * 10) + 1;
-                        num2 = Math.floor(Math.random() * 10) + 1;
-                        operator = '×';
-                        answer = num1 * num2;
-                        break;
-                        
-                    case 'addition':
-                        num1 = Math.floor(Math.random() * 50) + 1;
-                        num2 = Math.floor(Math.random() * 50) + 1;
-                        operator = '+';
-                        answer = num1 + num2;
-                        break;
-                        
-                    case 'subtraction':
-                        // Generate two numbers between 1-100, ensure larger - smaller
-                        num1 = Math.floor(Math.random() * 100) + 1;
-                        num2 = Math.floor(Math.random() * 100) + 1;
-                        if (num1 < num2) {
-                            [num1, num2] = [num2, num1]; // Swap to ensure num1 >= num2
-                        }
-                        operator = '−';
-                        answer = num1 - num2;
-                        break;
-                        
-                    case 'division':
-                        // Generate from multiplication table: (a × b) ÷ b = a
-                        num1 = Math.floor(Math.random() * 10) + 1;
-                        num2 = Math.floor(Math.random() * 10) + 1;
-                        const dividend = num1 * num2;
-                        operator = '÷';
-                        answer = num1;
-                        num1 = dividend; // Display the dividend, not the original num1
-                        break;
+                if (this.gameType === 'mini') {
+                    // Mini mode - original logic
+                    switch (currentMode) {
+                        case 'multiplication':
+                            num1 = Math.floor(Math.random() * 10) + 1;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                            operator = '×';
+                            answer = num1 * num2;
+                            break;
+                            
+                        case 'addition':
+                            num1 = Math.floor(Math.random() * 50) + 1;
+                            num2 = Math.floor(Math.random() * 50) + 1;
+                            operator = '+';
+                            answer = num1 + num2;
+                            break;
+                            
+                        case 'subtraction':
+                            num1 = Math.floor(Math.random() * 100) + 1;
+                            num2 = Math.floor(Math.random() * 100) + 1;
+                            if (num1 < num2) {
+                                [num1, num2] = [num2, num1];
+                            }
+                            operator = '−';
+                            answer = num1 - num2;
+                            break;
+                            
+                        case 'division':
+                            num1 = Math.floor(Math.random() * 10) + 1;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                            const dividend = num1 * num2;
+                            operator = '÷';
+                            answer = num1;
+                            num1 = dividend;
+                            break;
+                    }
+                } else {
+                    // Level mode - new level-based logic
+                    switch (currentMode) {
+                        case 'addition':
+                            [num1, num2, answer] = this.generateAdditionLevel();
+                            operator = '+';
+                            break;
+                            
+                        case 'subtraction':
+                            [num1, num2, answer] = this.generateSubtractionLevel();
+                            operator = '−';
+                            break;
+                            
+                        case 'multiplication':
+                            [num1, num2, answer] = this.generateMultiplicationLevel();
+                            operator = '×';
+                            break;
+                            
+                        case 'division':
+                            [num1, num2, answer] = this.generateDivisionLevel();
+                            operator = '÷';
+                            break;
+                            
+                        case 'mixed':
+                            [num1, num2, answer, operator] = this.generateMixedLevel();
+                            break;
+                    }
                 }
                 
                 this.currentAnswer = answer;
                 this.questionElement.textContent = `${num1} ${operator} ${num2} = ?`;
                 this.answerInput.value = '';
+            }
+
+            // Level generation methods
+            generateAdditionLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Sum ≤ 10
+                        answer = Math.floor(Math.random() * 10) + 1;
+                        num1 = Math.floor(Math.random() * answer) + 1;
+                        num2 = answer - num1;
+                        break;
+                    case 2: // Sum ≤ 20
+                        answer = Math.floor(Math.random() * 20) + 1;
+                        num1 = Math.floor(Math.random() * answer) + 1;
+                        num2 = answer - num1;
+                        break;
+                    case 3: // Sum ≤ 50
+                        answer = Math.floor(Math.random() * 50) + 1;
+                        num1 = Math.floor(Math.random() * answer) + 1;
+                        num2 = answer - num1;
+                        break;
+                    case 4: // Sum ≤ 100, both > 10
+                        answer = Math.floor(Math.random() * 80) + 21; // 21-100
+                        num1 = Math.floor(Math.random() * (answer - 11)) + 11; // 11 to answer-1
+                        num2 = answer - num1;
+                        break;
+                    case 5: // Sum ≤ 1000, both > 100
+                        answer = Math.floor(Math.random() * 800) + 201; // 201-1000
+                        num1 = Math.floor(Math.random() * (answer - 101)) + 101; // 101 to answer-1
+                        num2 = answer - num1;
+                        break;
+                    case 6: // Sum ≤ 10000, both > 1000
+                        answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
+                        // Ensure both numbers are > 1000
+                        const minNum = Math.max(1001, answer - 10000); // At least 1001
+                        const maxNum = Math.min(10000, answer - 1001); // At most answer-1001
+                        num1 = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
+                        num2 = answer - num1;
+                        // Double-check both are > 1000
+                        if (num1 <= 1000 || num2 <= 1000) {
+                            num1 = Math.floor(Math.random() * 4000) + 1001; // 1001-5000
+                            num2 = Math.floor(Math.random() * 4000) + 1001; // 1001-5000
+                            answer = num1 + num2;
+                        }
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            generateSubtractionLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Result ≤ 10
+                        answer = Math.floor(Math.random() * 10) + 1;
+                        num1 = answer + Math.floor(Math.random() * 10) + 1;
+                        num2 = num1 - answer;
+                        break;
+                    case 2: // Result ≤ 20
+                        answer = Math.floor(Math.random() * 20) + 1;
+                        num1 = answer + Math.floor(Math.random() * 20) + 1;
+                        num2 = num1 - answer;
+                        break;
+                    case 3: // Result ≤ 50
+                        answer = Math.floor(Math.random() * 50) + 1;
+                        num1 = answer + Math.floor(Math.random() * 50) + 1;
+                        num2 = num1 - answer;
+                        break;
+                    case 4: // Result ≤ 100, both > 10
+                        answer = Math.floor(Math.random() * 80) + 21; // 21-100
+                        num1 = answer + Math.floor(Math.random() * 50) + 11; // answer+11 to answer+60
+                        num2 = num1 - answer;
+                        break;
+                    case 5: // Result ≤ 1000, both > 100
+                        answer = Math.floor(Math.random() * 800) + 201; // 201-1000
+                        num1 = answer + Math.floor(Math.random() * 500) + 101; // answer+101 to answer+600
+                        num2 = num1 - answer;
+                        break;
+                    case 6: // Result ≤ 10000, both > 1000
+                        answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
+                        num1 = answer + Math.floor(Math.random() * 5000) + 1001; // answer+1001 to answer+6000
+                        num2 = num1 - answer;
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            generateMultiplicationLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Product ≤ 10 (0 allowed)
+                        if (Math.random() < 0.1) { // 10% chance for 0
+                            num1 = 0;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                        } else {
+                            // Generate uniformly distributed products 1-10
+                            answer = Math.floor(Math.random() * 10) + 1;
+                            const factors = this.getFactors(answer);
+                            const factor = factors[Math.floor(Math.random() * factors.length)];
+                            num1 = factor;
+                            num2 = answer / factor;
+                        }
+                        answer = num1 * num2;
+                        break;
+                    case 2: // Both numbers ≤ 10 and product ≤ 50
+                        // Generate all valid combinations and pick uniformly
+                        const validCombos2 = [];
+                        for (let i = 1; i <= 10; i++) {
+                            for (let j = 1; j <= 10; j++) {
+                                if (i * j <= 50) {
+                                    validCombos2.push([i, j]);
+                                }
+                            }
+                        }
+                        const combo2 = validCombos2[Math.floor(Math.random() * validCombos2.length)];
+                        num1 = combo2[0];
+                        num2 = combo2[1];
+                        answer = num1 * num2;
+                        break;
+                    case 3: // Both numbers ≤ 10 and product ≤ 100
+                        // Generate all valid combinations and pick uniformly
+                        const validCombos3 = [];
+                        for (let i = 1; i <= 10; i++) {
+                            for (let j = 1; j <= 10; j++) {
+                                if (i * j <= 100) {
+                                    validCombos3.push([i, j]);
+                                }
+                            }
+                        }
+                        const combo3 = validCombos3[Math.floor(Math.random() * validCombos3.length)];
+                        num1 = combo3[0];
+                        num2 = combo3[1];
+                        answer = num1 * num2;
+                        break;
+                    case 4: // Product < 100, one number > 10, second number > 3
+                        // Generate all valid combinations and pick uniformly
+                        const validCombos4 = [];
+                        for (let i = 11; i <= 99; i++) { // First number > 10
+                            for (let j = 4; j <= 99; j++) { // Second number > 3
+                                if (i * j < 100) {
+                                    validCombos4.push([i, j]);
+                                }
+                            }
+                        }
+                        const combo4 = validCombos4[Math.floor(Math.random() * validCombos4.length)];
+                        num1 = combo4[0];
+                        num2 = combo4[1];
+                        answer = num1 * num2;
+                        break;
+                    case 5: // Both between 10 and 20
+                        num1 = Math.floor(Math.random() * 10) + 11; // 11-20
+                        num2 = Math.floor(Math.random() * 10) + 11; // 11-20
+                        answer = num1 * num2;
+                        break;
+                    case 6: // Both between 10 and 50
+                        num1 = Math.floor(Math.random() * 40) + 11; // 11-50
+                        num2 = Math.floor(Math.random() * 40) + 11; // 11-50
+                        answer = num1 * num2;
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            generateDivisionLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Result ≤ 10 (0 allowed)
+                        if (Math.random() < 0.1) { // 10% chance for 0
+                            answer = 0;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                        } else {
+                            answer = Math.floor(Math.random() * 10) + 1;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                        }
+                        num1 = answer * num2;
+                        break;
+                    case 2: // Result ≤ 50
+                        answer = Math.floor(Math.random() * 50) + 1;
+                        num2 = Math.floor(Math.random() * 20) + 1;
+                        num1 = answer * num2;
+                        break;
+                    case 3: // Result ≤ 100, both ≤ 10
+                        answer = Math.floor(Math.random() * 100) + 1;
+                        num2 = Math.floor(Math.random() * 10) + 1;
+                        num1 = answer * num2;
+                        break;
+                    case 4: // Result < 100, at least one > 10
+                        answer = Math.floor(Math.random() * 99) + 1;
+                        num2 = Math.floor(Math.random() * 20) + 11; // 11-30
+                        num1 = answer * num2;
+                        break;
+                    case 5: // Both between 10 and 20
+                        answer = Math.floor(Math.random() * 10) + 11; // 11-20
+                        num2 = Math.floor(Math.random() * 10) + 11; // 11-20
+                        num1 = answer * num2;
+                        break;
+                    case 6: // Both between 10 and 50
+                        answer = Math.floor(Math.random() * 40) + 11; // 11-50
+                        num2 = Math.floor(Math.random() * 40) + 11; // 11-50
+                        num1 = answer * num2;
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            getFactors(n) {
+                const factors = [];
+                for (let i = 1; i <= n; i++) {
+                    if (n % i === 0) {
+                        factors.push(i);
+                    }
+                }
+                return factors;
+            }
+
+            generateMixedLevel() {
+                // Randomly select one of the four operations
+                const operations = ['addition', 'subtraction', 'multiplication', 'division'];
+                const selectedOperation = operations[Math.floor(Math.random() * operations.length)];
+                
+                let num1, num2, answer, operator;
+                
+                // Generate problem based on selected operation and current level
+                switch (selectedOperation) {
+                    case 'addition':
+                        [num1, num2, answer] = this.generateAdditionLevel();
+                        operator = '+';
+                        break;
+                        
+                    case 'subtraction':
+                        [num1, num2, answer] = this.generateSubtractionLevel();
+                        operator = '−';
+                        break;
+                        
+                    case 'multiplication':
+                        [num1, num2, answer] = this.generateMultiplicationLevel();
+                        operator = '×';
+                        break;
+                        
+                    case 'division':
+                        [num1, num2, answer] = this.generateDivisionLevel();
+                        operator = '÷';
+                        break;
+                }
+                
+                return [num1, num2, answer, operator];
             }
 
             startTimer() {
@@ -624,16 +1017,30 @@
                 const userAnswer = parseInt(this.answerInput.value);
                 
                 if (userAnswer === this.currentAnswer) {
-                    // Calculate points based on speed
+                    // Calculate points based on speed and level
                     const timeElapsed = (Date.now() - this.questionStartTime) / 1000;
-                    const points = this.calculatePoints(timeElapsed);
+                    const basePoints = this.calculatePoints(timeElapsed);
+                    const levelBonus = this.gameType === 'level' ? this.currentLevel - 1 : 0;
+                    const points = basePoints + levelBonus;
+                    
                     this.score += points;
                     this.updateScore();
                     this.showScoreFeedback(points, true);
                     this.stopTimer();
                     
-                    // Check if player won (reached 500 points)
-                    if (this.score >= 500) {
+                    // Level progression logic
+                    if (this.gameType === 'level') {
+                        this.correctStreak++;
+                        if (this.correctStreak >= 5 && this.currentLevel < 6) {
+                            this.currentLevel++;
+                            this.correctStreak = 0;
+                            this.updateLevelDisplay();
+                        }
+                    }
+                    
+                    // Check if player won (different targets for mini vs level mode)
+                    const winTarget = this.gameType === 'mini' ? 100 : 500;
+                    if (this.score >= winTarget) {
                         this.endGame(true);
                         return;
                     }
@@ -646,6 +1053,16 @@
                     this.updateScore();
                     this.showScoreFeedback(5, false);
                     this.stopTimer();
+                    
+                    // Level demotion logic
+                    if (this.gameType === 'level') {
+                        this.correctStreak = 0;
+                        if (this.currentLevel > 1) {
+                            this.currentLevel--;
+                            this.updateLevelDisplay();
+                        }
+                    }
+                    
                     this.generateQuestion();
                     this.startTimer();
                     
@@ -680,7 +1097,7 @@
             }
 
             resetGame() {
-                this.startGame(this.gameMode);
+                this.startGame(this.gameMode, this.gameType);
             }
 
             switchMode() {
@@ -707,6 +1124,14 @@
                     'mixed': 'Mixed'
                 };
                 this.modeDisplay.textContent = modeNames[this.gameMode];
+            }
+
+            updateLevelDisplay() {
+                if (this.gameType === 'level') {
+                    this.levelDisplay.textContent = `Level ${this.currentLevel}`;
+                } else {
+                    this.levelDisplay.textContent = '';
+                }
             }
 
             showScoreFeedback(points, isPositive) {
