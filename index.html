@@ -391,10 +391,11 @@
             margin: 20px 0;
             color: #ff6b6b;
             font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .victory-message {
-            font-size: 1.8em;
+            font-size: 1.6em;
             margin: 20px 0;
             color: #4ecdc4;
             font-weight: bold;
@@ -1209,7 +1210,7 @@
                 
                 if (isVictory) {
                     this.gameOverMessage.textContent = `Congrats! You won! Your final score is ${this.score}.`;
-                    this.gameOverMessage.className = 'game-over';
+                    this.gameOverMessage.className = 'victory-message';
                 } else {
                     this.gameOverMessage.textContent = `Game over! Your final score is ${this.score}.`;
                     this.gameOverMessage.className = 'game-over';
