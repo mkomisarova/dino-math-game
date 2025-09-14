@@ -34,6 +34,58 @@
             position: relative;
         }
 
+        .dinosaur-container {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            z-index: 10;
+        }
+
+        .dino {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .medal {
+            position: absolute;
+            top: 48%;
+            left: 35%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .medal.gray {
+            background: #777;
+        }
+
+        .medal.bronze {
+            background: #cd7f32;
+        }
+
+        .medal.silver {
+            background: #c0c0c0;
+        }
+
+        .medal.gold {
+            background: #ffd700;
+        }
+
+
         h1 {
             font-size: 2.2em;
             margin-bottom: 30px;
@@ -45,6 +97,8 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             align-items: center;
+            justify-items: center;
+            width: fit-content;
             max-width: 400px;
             margin: 0 auto;
         }
@@ -264,14 +318,17 @@
         .number-keyboard {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 12px;
+            width: fit-content;
             max-width: 300px;
             margin: 20px auto;
+            justify-items: center;
         }
 
         .number-btn {
             font-size: 1.2em;
-            padding: 15px;
+            width: 60px;
+            height: 60px;
             border: none;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.2);
@@ -284,6 +341,7 @@
             justify-content: center;
             text-align: center;
             white-space: nowrap;
+            aspect-ratio: 1;
         }
 
         .number-btn:hover {
@@ -462,12 +520,27 @@
             
             .number-keyboard {
                 max-width: 250px;
+                gap: 10px;
             }
             
             .number-btn {
-                padding: 12px;
+                width: 50px;
+                height: 50px;
                 font-size: 1.1em;
             }
+
+            .dinosaur-container {
+                width: 120px;
+                height: 120px;
+                top: 70px;
+            }
+
+            .medal {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+
         }
     </style>
 </head>
@@ -498,6 +571,12 @@
 
         <!-- Game Screen -->
         <div id="gameScreen" class="hidden">
+            <!-- Dinosaur with Medal -->
+            <div class="dinosaur-container">
+                <img src="dino.png" alt="Dinosaur" class="dino" id="dinosaurImage" />
+                <div class="medal gray" id="medal">5</div>
+            </div>
+            
             <div class="game-header">
                 <div>
                     <div class="mode-display" id="modeDisplay">Mode</div>
@@ -539,6 +618,11 @@
                 <button id="playAgainBtn" class="play-again-btn">Play Again</button>
                 <button id="switchModeBtn" class="switch-mode-btn">Switch Mode</button>
             </div>
+            <!-- Dinosaur with Medal for End Screen - positioned below buttons -->
+            <div class="dinosaur-container" style="position: relative; top: auto; left: auto; transform: none; margin: 20px auto 0;">
+                <img src="dino.png" alt="Dinosaur" class="dino" id="endScreenDinosaur" />
+                <div class="medal gray" id="endScreenMedal">5</div>
+            </div>
         </div>
     </div>
 
@@ -551,6 +635,8 @@
                 this.gameType = 'mini'; // 'mini' or 'level'
                 this.currentLevel = 1;
                 this.correctStreak = 0;
+                this.medalStreak = 0; // Separate streak for medal progression
+                this.medalLevel = 10; // Dinosaur medal starts at level 10
                 this.timer = null;
                 this.timeLeft = 15;
                 this.questionStartTime = 0;
@@ -584,6 +670,10 @@
                 this.modeDisplay = document.getElementById('modeDisplay');
                 this.levelDisplay = document.getElementById('levelDisplay');
                 this.operationTitle = document.getElementById('operationTitle');
+                this.dinosaurImage = document.getElementById('dinosaurImage');
+                this.medal = document.getElementById('medal');
+                this.endScreenDinosaur = document.getElementById('endScreenDinosaur');
+                this.endScreenMedal = document.getElementById('endScreenMedal');
                 this.numberButtons = document.querySelectorAll('.number-btn[data-number]');
             }
 
@@ -642,9 +732,12 @@
                 this.score = 0;
                 this.currentLevel = 1;
                 this.correctStreak = 0;
+                this.medalStreak = 0; // Reset medal streak
+                this.medalLevel = type === 'mini' ? 5 : 10; // Mini mode starts at 5, level mode at 10
                 this.updateScore();
                 this.updateModeDisplay();
                 this.updateLevelDisplay();
+                this.updateMedal();
                 this.modeSelectionScreen.classList.add('hidden');
                 this.operationModeScreen.classList.add('hidden');
                 this.gameScreen.classList.remove('hidden');
@@ -1042,6 +1135,15 @@
                         }
                     }
                     
+                    // Medal progression (decreases every 5 correct answers for level mode, 4 for mini mode)
+                    this.medalStreak++;
+                    const requiredStreak = this.gameType === 'mini' ? 4 : 5;
+                    if (this.medalStreak >= requiredStreak && this.medalLevel > 1) {
+                        this.medalLevel--;
+                        this.medalStreak = 0;
+                        this.updateMedal();
+                    }
+                    
                     // Check if player won (different targets for mini vs level mode)
                     const winTarget = this.gameType === 'mini' ? 100 : 500;
                     if (this.score >= winTarget) {
@@ -1091,9 +1193,12 @@
                 this.gameScreen.classList.add('hidden');
                 this.gameOverScreen.classList.remove('hidden');
                 
+                // Update the end screen medal to match the current medal state
+                this.updateEndScreenMedal();
+                
                 if (isVictory) {
-                    this.gameOverMessage.innerHTML = `🎉 You won! Great job! 🎉<br>Final Score: ${this.score}`;
-                    this.gameOverMessage.className = 'victory-message';
+                    this.gameOverMessage.textContent = `Congrats! You won! Your final score is ${this.score}.`;
+                    this.gameOverMessage.className = 'game-over';
                 } else {
                     this.gameOverMessage.textContent = `Game over! Your final score is ${this.score}.`;
                     this.gameOverMessage.className = 'game-over';
@@ -1101,10 +1206,14 @@
             }
 
             resetGame() {
+                // Restore the top dinosaur visibility
+                this.dinosaurImage.style.display = 'block';
                 this.startGame(this.gameMode, this.gameType);
             }
 
             switchMode() {
+                // Restore the top dinosaur visibility
+                this.dinosaurImage.style.display = 'block';
                 this.modeSelectionScreen.classList.remove('hidden');
                 this.gameScreen.classList.add('hidden');
                 this.gameOverScreen.classList.add('hidden');
@@ -1135,6 +1244,53 @@
                     this.levelDisplay.textContent = `Level ${this.currentLevel}`;
                 } else {
                     this.levelDisplay.textContent = '';
+                }
+            }
+
+            updateMedal() {
+                this.medal.style.display = 'flex';
+                this.medal.textContent = this.medalLevel;
+                
+                // Update medal color based on level
+                this.medal.className = 'medal';
+                if (this.medalLevel >= 4 && this.medalLevel <= 10) {
+                    this.medal.classList.add('gray');
+                } else if (this.medalLevel === 3) {
+                    this.medal.classList.add('bronze');
+                } else if (this.medalLevel === 2) {
+                    this.medal.classList.add('silver');
+                } else if (this.medalLevel === 1) {
+                    this.medal.classList.add('gold');
+                }
+            }
+
+            getMedalColorClass() {
+                if (this.medalLevel >= 4 && this.medalLevel <= 10) {
+                    return 'gray';
+                } else if (this.medalLevel === 3) {
+                    return 'bronze';
+                } else if (this.medalLevel === 2) {
+                    return 'silver';
+                } else if (this.medalLevel === 1) {
+                    return 'gold';
+                }
+                return 'gray';
+            }
+
+            updateEndScreenMedal() {
+                this.endScreenMedal.style.display = 'flex';
+                this.endScreenMedal.textContent = this.medalLevel;
+                
+                // Update medal color based on level
+                this.endScreenMedal.className = 'medal';
+                if (this.medalLevel >= 4 && this.medalLevel <= 10) {
+                    this.endScreenMedal.classList.add('gray');
+                } else if (this.medalLevel === 3) {
+                    this.endScreenMedal.classList.add('bronze');
+                } else if (this.medalLevel === 2) {
+                    this.endScreenMedal.classList.add('silver');
+                } else if (this.medalLevel === 1) {
+                    this.endScreenMedal.classList.add('gold');
                 }
             }
 
