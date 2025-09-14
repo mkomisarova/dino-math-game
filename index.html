@@ -317,6 +317,17 @@
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
+        /* Hide spinner buttons for number inputs */
+        .answer-input::-webkit-outer-spin-button,
+        .answer-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .answer-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         .number-keyboard {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -400,6 +411,53 @@
             color: #4ecdc4;
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-end-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .level-end-screen .end-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f8f9fa;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .level-end-screen .stats-table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .level-end-screen .stats-table th,
+        .level-end-screen .stats-table td {
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .level-end-screen .stats-table th {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .level-end-screen .stats-table td {
+            background: rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
 
         .hidden {
@@ -603,7 +661,7 @@
             <div class="question" id="question"></div>
             
             <div class="answer-section">
-                <input type="number" id="answerInput" class="answer-input" placeholder="Your answer">
+                <input type="text" id="answerInput" class="answer-input" placeholder="Your answer">
                 <button id="submitBtn" class="submit-btn">Submit</button>
             </div>
             
@@ -618,6 +676,7 @@
                 <button class="number-btn" data-number="7">7</button>
                 <button class="number-btn" data-number="8">8</button>
                 <button class="number-btn" data-number="9">9</button>
+                <button class="number-btn" data-number="-">-</button>
                 <button class="number-btn clear-btn" id="clearBtn">Clear</button>
                 <button class="number-btn" data-number="0">0</button>
             </div>
@@ -652,6 +711,9 @@
                 this.timer = null;
                 this.timeLeft = 15;
                 this.questionStartTime = 0;
+                // Accuracy tracking for level mode
+                this.totalQuestions = 0;
+                this.correctAnswers = 0;
                 this.initializeElements();
                 this.attachEventListeners();
             }
@@ -707,7 +769,23 @@
                 this.answerInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         this.submitAnswer();
+                        return;
                     }
+                    
+                    // Allow digits (0-9)
+                    if (e.key >= '0' && e.key <= '9') {
+                        return; // Allow the keypress
+                    }
+                    
+                    // Allow minus sign only as the first character
+                    if (e.key === '-') {
+                        if (e.target.value === '') {
+                            return; // Allow minus if field is empty
+                        }
+                    }
+                    
+                    // Block all other characters
+                    e.preventDefault();
                 });
 
                 // Number keyboard event listeners
@@ -746,6 +824,11 @@
                 this.correctStreak = 0;
                 this.medalStreak = 0; // Reset medal streak
                 this.medalLevel = type === 'mini' ? 5 : 10; // Mini mode starts at 5, level mode at 10
+                // Reset accuracy tracking
+                this.totalQuestions = 0;
+                this.correctAnswers = 0;
+                // Set timer based on game type
+                this.timeLeft = type === 'level' ? 180 : 60; // 3 minutes for level mode, 1 minute for mini mode
                 this.updateScore();
                 this.updateModeDisplay();
                 this.updateLevelDisplay();
@@ -837,6 +920,9 @@
                 this.currentAnswer = answer;
                 this.questionElement.textContent = `${num1} ${operator} ${num2} = ?`;
                 this.answerInput.value = '';
+                
+                // Reset per-problem stopwatch here for EVERY question
+                this.questionStartTime = Date.now();
             }
 
             // Level generation methods
@@ -848,39 +934,40 @@
                         num1 = Math.floor(Math.random() * answer) + 1;
                         num2 = answer - num1;
                         break;
-                    case 2: // Sum ≤ 20
-                        answer = Math.floor(Math.random() * 20) + 1;
-                        num1 = Math.floor(Math.random() * answer) + 1;
+                    case 2: // Sum > 10 and ≤ 20, both > 5
+                        answer = Math.floor(Math.random() * 10) + 11; // 11-20
+                        num1 = Math.floor(Math.random() * (answer - 6)) + 6; // 6 to answer-1
                         num2 = answer - num1;
                         break;
-                    case 3: // Sum ≤ 50
-                        answer = Math.floor(Math.random() * 50) + 1;
-                        num1 = Math.floor(Math.random() * answer) + 1;
+                    case 3: // Sum > 20 and ≤ 50, both > 20
+                        answer = Math.floor(Math.random() * 30) + 21; // 21-50
+                        num1 = Math.floor(Math.random() * (answer - 21)) + 21; // 21 to answer-1
                         num2 = answer - num1;
                         break;
-                    case 4: // Sum ≤ 100, both > 10
-                        answer = Math.floor(Math.random() * 80) + 21; // 21-100
+                    case 4: // Sum > 50 and ≤ 100, both > 10
+                        answer = Math.floor(Math.random() * 50) + 51; // 51-100
                         num1 = Math.floor(Math.random() * (answer - 11)) + 11; // 11 to answer-1
                         num2 = answer - num1;
                         break;
-                    case 5: // Sum ≤ 1000, both > 100
+                    case 5: // Sum > 100 and ≤ 1000, both > 100
                         answer = Math.floor(Math.random() * 800) + 201; // 201-1000
                         num1 = Math.floor(Math.random() * (answer - 101)) + 101; // 101 to answer-1
                         num2 = answer - num1;
                         break;
-                    case 6: // Sum ≤ 10000, both > 1000
+                    case 6: // Sum > 1000 and ≤ 10000, both > 1000
                         answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
-                        // Ensure both numbers are > 1000
-                        const minNum = Math.max(1001, answer - 10000); // At least 1001
-                        const maxNum = Math.min(10000, answer - 1001); // At most answer-1001
-                        num1 = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
+                        num1 = Math.floor(Math.random() * (answer - 1001)) + 1001; // 1001 to answer-1
                         num2 = answer - num1;
-                        // Double-check both are > 1000
-                        if (num1 <= 1000 || num2 <= 1000) {
-                            num1 = Math.floor(Math.random() * 4000) + 1001; // 1001-5000
-                            num2 = Math.floor(Math.random() * 4000) + 1001; // 1001-5000
-                            answer = num1 + num2;
-                        }
+                        break;
+                    case 7: // Sum > 10000 and ≤ 20000, both > 1000
+                        answer = Math.floor(Math.random() * 10000) + 10001; // 10001-20000
+                        num1 = Math.floor(Math.random() * (answer - 1001)) + 1001; // 1001 to answer-1
+                        num2 = answer - num1;
+                        break;
+                    case 8: // Sum > 20000 and ≤ 100000, both > 10000
+                        answer = Math.floor(Math.random() * 80000) + 20001; // 20001-100000
+                        num1 = Math.floor(Math.random() * (answer - 10001)) + 10001; // 10001 to answer-1
+                        num2 = answer - num1;
                         break;
                 }
                 return [num1, num2, answer];
@@ -894,29 +981,39 @@
                         num1 = answer + Math.floor(Math.random() * 10) + 1;
                         num2 = num1 - answer;
                         break;
-                    case 2: // Result ≤ 20
-                        answer = Math.floor(Math.random() * 20) + 1;
+                    case 2: // Result > 10 and ≤ 20, both > 5
+                        answer = Math.floor(Math.random() * 10) + 11; // 11-20
                         num1 = answer + Math.floor(Math.random() * 20) + 1;
                         num2 = num1 - answer;
                         break;
-                    case 3: // Result ≤ 50
-                        answer = Math.floor(Math.random() * 50) + 1;
+                    case 3: // Result > 20 and ≤ 50, both > 20
+                        answer = Math.floor(Math.random() * 30) + 21; // 21-50
                         num1 = answer + Math.floor(Math.random() * 50) + 1;
                         num2 = num1 - answer;
                         break;
-                    case 4: // Result ≤ 100, both > 10
-                        answer = Math.floor(Math.random() * 80) + 21; // 21-100
+                    case 4: // Result > 50 and ≤ 100, both > 10
+                        answer = Math.floor(Math.random() * 50) + 51; // 51-100
                         num1 = answer + Math.floor(Math.random() * 50) + 11; // answer+11 to answer+60
                         num2 = num1 - answer;
                         break;
-                    case 5: // Result ≤ 1000, both > 100
+                    case 5: // Result > 100 and ≤ 1000, both > 100
                         answer = Math.floor(Math.random() * 800) + 201; // 201-1000
                         num1 = answer + Math.floor(Math.random() * 500) + 101; // answer+101 to answer+600
                         num2 = num1 - answer;
                         break;
-                    case 6: // Result ≤ 10000, both > 1000
+                    case 6: // Result > 1000 and ≤ 10000, both > 1000
                         answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
                         num1 = answer + Math.floor(Math.random() * 5000) + 1001; // answer+1001 to answer+6000
+                        num2 = num1 - answer;
+                        break;
+                    case 7: // Result > 10000 and ≤ 20000, both > 1000
+                        answer = Math.floor(Math.random() * 10000) + 10001; // 10001-20000
+                        num1 = answer + Math.floor(Math.random() * 5000) + 1001; // answer+1001 to answer+6000
+                        num2 = num1 - answer;
+                        break;
+                    case 8: // Result > 20000 and ≤ 100000, both > 10000
+                        answer = Math.floor(Math.random() * 80000) + 20001; // 20001-100000
+                        num1 = answer + Math.floor(Math.random() * 50000) + 10001; // answer+10001 to answer+60000
                         num2 = num1 - answer;
                         break;
                 }
@@ -940,12 +1037,12 @@
                         }
                         answer = num1 * num2;
                         break;
-                    case 2: // Both numbers ≤ 10 and product ≤ 50
-                        // Generate all valid combinations and pick uniformly
+                    case 2: // Both numbers multiply to > 10 and ≤ 50, numbers ≤ 10
                         const validCombos2 = [];
                         for (let i = 1; i <= 10; i++) {
                             for (let j = 1; j <= 10; j++) {
-                                if (i * j <= 50) {
+                                const product = i * j;
+                                if (product > 10 && product <= 50) {
                                     validCombos2.push([i, j]);
                                 }
                             }
@@ -955,12 +1052,12 @@
                         num2 = combo2[1];
                         answer = num1 * num2;
                         break;
-                    case 3: // Both numbers ≤ 10 and product ≤ 100
-                        // Generate all valid combinations and pick uniformly
+                    case 3: // Both numbers multiply to > 50 and ≤ 100, numbers ≤ 10
                         const validCombos3 = [];
                         for (let i = 1; i <= 10; i++) {
                             for (let j = 1; j <= 10; j++) {
-                                if (i * j <= 100) {
+                                const product = i * j;
+                                if (product > 50 && product <= 100) {
                                     validCombos3.push([i, j]);
                                 }
                             }
@@ -970,12 +1067,12 @@
                         num2 = combo3[1];
                         answer = num1 * num2;
                         break;
-                    case 4: // Product < 100, one number > 10, second number > 3
-                        // Generate all valid combinations and pick uniformly
+                    case 4: // Product < 100, with one number > 10, other > 3
                         const validCombos4 = [];
-                        for (let i = 11; i <= 99; i++) { // First number > 10
-                            for (let j = 4; j <= 99; j++) { // Second number > 3
-                                if (i * j < 100) {
+                        for (let i = 11; i <= 20; i++) {
+                            for (let j = 4; j <= 9; j++) {
+                                const product = i * j;
+                                if (product < 100) {
                                     validCombos4.push([i, j]);
                                 }
                             }
@@ -985,14 +1082,29 @@
                         num2 = combo4[1];
                         answer = num1 * num2;
                         break;
-                    case 5: // Both between 10 and 20
-                        num1 = Math.floor(Math.random() * 10) + 11; // 11-20
-                        num2 = Math.floor(Math.random() * 10) + 11; // 11-20
+                    case 5: // Both numbers 10-20
+                        num1 = Math.floor(Math.random() * 11) + 10; // 10-20
+                        num2 = Math.floor(Math.random() * 11) + 10; // 10-20
                         answer = num1 * num2;
                         break;
-                    case 6: // Both between 10 and 50
-                        num1 = Math.floor(Math.random() * 40) + 11; // 11-50
-                        num2 = Math.floor(Math.random() * 40) + 11; // 11-50
+                    case 6: // Both numbers 10-50, at least one > 20
+                        if (Math.random() < 0.5) {
+                            num1 = Math.floor(Math.random() * 31) + 21; // 21-50
+                            num2 = Math.floor(Math.random() * 31) + 10; // 10-40
+                        } else {
+                            num1 = Math.floor(Math.random() * 31) + 10; // 10-40
+                            num2 = Math.floor(Math.random() * 31) + 21; // 21-50
+                        }
+                        answer = num1 * num2;
+                        break;
+                    case 7: // Both numbers 21-99
+                        num1 = Math.floor(Math.random() * 79) + 21; // 21-99
+                        num2 = Math.floor(Math.random() * 79) + 21; // 21-99
+                        answer = num1 * num2;
+                        break;
+                    case 8: // Both numbers 51-99
+                        num1 = Math.floor(Math.random() * 49) + 51; // 51-99
+                        num2 = Math.floor(Math.random() * 49) + 51; // 51-99
                         answer = num1 * num2;
                         break;
                 }
@@ -1012,29 +1124,44 @@
                         }
                         num1 = answer * num2;
                         break;
-                    case 2: // Result ≤ 50
-                        answer = Math.floor(Math.random() * 50) + 1;
-                        num2 = Math.floor(Math.random() * 20) + 1;
-                        num1 = answer * num2;
-                        break;
-                    case 3: // Result ≤ 100, both ≤ 10
-                        answer = Math.floor(Math.random() * 100) + 1;
-                        num2 = Math.floor(Math.random() * 10) + 1;
-                        num1 = answer * num2;
-                        break;
-                    case 4: // Result < 100, at least one > 10
-                        answer = Math.floor(Math.random() * 99) + 1;
-                        num2 = Math.floor(Math.random() * 20) + 11; // 11-30
-                        num1 = answer * num2;
-                        break;
-                    case 5: // Both between 10 and 20
-                        answer = Math.floor(Math.random() * 10) + 11; // 11-20
-                        num2 = Math.floor(Math.random() * 10) + 11; // 11-20
-                        num1 = answer * num2;
-                        break;
-                    case 6: // Both between 10 and 50
+                    case 2: // Result > 10 and ≤ 50, numbers ≤ 10
                         answer = Math.floor(Math.random() * 40) + 11; // 11-50
-                        num2 = Math.floor(Math.random() * 40) + 11; // 11-50
+                        num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+                        num1 = answer * num2;
+                        break;
+                    case 3: // Result > 50 and ≤ 100, numbers ≤ 10
+                        answer = Math.floor(Math.random() * 50) + 51; // 51-100
+                        num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+                        num1 = answer * num2;
+                        break;
+                    case 4: // Result < 100, with one number > 10, other > 3
+                        answer = Math.floor(Math.random() * 50) + 1; // 1-50
+                        num2 = Math.floor(Math.random() * 6) + 4; // 4-9
+                        num1 = answer * num2;
+                        break;
+                    case 5: // Both numbers 10-20
+                        answer = Math.floor(Math.random() * 11) + 10; // 10-20
+                        num2 = Math.floor(Math.random() * 11) + 10; // 10-20
+                        num1 = answer * num2;
+                        break;
+                    case 6: // Both numbers 10-50, at least one > 20
+                        if (Math.random() < 0.5) {
+                            answer = Math.floor(Math.random() * 30) + 21; // 21-50
+                            num2 = Math.floor(Math.random() * 31) + 10; // 10-40
+                        } else {
+                            answer = Math.floor(Math.random() * 31) + 10; // 10-40
+                            num2 = Math.floor(Math.random() * 30) + 21; // 21-50
+                        }
+                        num1 = answer * num2;
+                        break;
+                    case 7: // Both numbers 21-99
+                        answer = Math.floor(Math.random() * 79) + 21; // 21-99
+                        num2 = Math.floor(Math.random() * 79) + 21; // 21-99
+                        num1 = answer * num2;
+                        break;
+                    case 8: // Both numbers 51-99
+                        answer = Math.floor(Math.random() * 49) + 51; // 51-99
+                        num2 = Math.floor(Math.random() * 49) + 51; // 51-99
                         num1 = answer * num2;
                         break;
                 }
@@ -1085,8 +1212,6 @@
             }
 
             startTimer() {
-                this.timeLeft = 15;
-                this.questionStartTime = Date.now();
                 this.updateTimerDisplay();
                 this.timer = setInterval(() => {
                     this.timeLeft--;
@@ -1099,11 +1224,24 @@
             }
 
             updateTimerDisplay() {
-                this.timerElement.textContent = this.timeLeft;
-                if (this.timeLeft <= 5) {
-                    this.timerElement.classList.add('warning');
+                if (this.gameType === 'level') {
+                    // Display as minutes:seconds for level mode
+                    const minutes = Math.floor(this.timeLeft / 60);
+                    const seconds = this.timeLeft % 60;
+                    this.timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    if (this.timeLeft <= 5) {
+                        this.timerElement.classList.add('warning');
+                    } else {
+                        this.timerElement.classList.remove('warning');
+                    }
                 } else {
-                    this.timerElement.classList.remove('warning');
+                    // Display as seconds for mini mode
+                    this.timerElement.textContent = this.timeLeft;
+                    if (this.timeLeft <= 5) {
+                        this.timerElement.classList.add('warning');
+                    } else {
+                        this.timerElement.classList.remove('warning');
+                    }
                 }
             }
 
@@ -1115,7 +1253,16 @@
             }
 
             appendToInput(number) {
-                this.answerInput.value += number;
+                // Handle minus sign
+                if (number === '-') {
+                    // Only allow minus at the beginning if field is empty
+                    if (this.answerInput.value === '') {
+                        this.answerInput.value = '-';
+                    }
+                } else {
+                    // For digits, just append
+                    this.answerInput.value += number;
+                }
             }
 
             clearInput() {
@@ -1123,24 +1270,40 @@
             }
 
             submitAnswer() {
+                // Check if answer field is empty or only whitespace
+                if (!this.answerInput.value.trim()) {
+                    return; // Do nothing if empty
+                }
+                
                 const userAnswer = parseInt(this.answerInput.value);
                 
+                // Track total questions answered
+                this.totalQuestions++;
+                
                 if (userAnswer === this.currentAnswer) {
+                    // Track correct answers
+                    this.correctAnswers++;
+                    
                     // Calculate points based on speed and level
                     const timeElapsed = (Date.now() - this.questionStartTime) / 1000;
-                    const basePoints = this.calculatePoints(timeElapsed);
-                    const levelBonus = this.gameType === 'level' ? this.currentLevel - 1 : 0;
-                    const points = basePoints + levelBonus;
+                    const points = this.calculatePoints(timeElapsed);
                     
                     this.score += points;
                     this.updateScore();
                     this.showScoreFeedback(points, true);
-                    this.stopTimer();
+                    
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
                     
                     // Level progression logic
                     if (this.gameType === 'level') {
                         this.correctStreak++;
-                        if (this.correctStreak >= 5 && this.currentLevel < 6) {
+                        // Check advancement requirements
+                        let requiredStreak = 5; // Default: 5 correct answers
+                        if (this.currentLevel === 6 || this.currentLevel === 7) {
+                            requiredStreak = 10; // All disciplines: levels 6-7 need 10 correct answers
+                        }
+                        
+                        if (this.correctStreak >= requiredStreak && this.currentLevel < 8) {
                             this.currentLevel++;
                             this.correctStreak = 0;
                             this.updateLevelDisplay();
@@ -1156,21 +1319,16 @@
                         this.updateMedal();
                     }
                     
-                    // Check if player won (different targets for mini vs level mode)
-                    const winTarget = this.gameType === 'mini' ? 100 : 500;
-                    if (this.score >= winTarget) {
-                        this.endGame(true);
-                        return;
-                    }
-                    
+                    // No score-based win conditions - game continues until timer runs out
                     this.generateQuestion();
-                    this.startTimer();
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
                 } else {
                     // Wrong answer: subtract 5 points and continue
                     this.score -= 5;
                     this.updateScore();
                     this.showScoreFeedback(5, false);
-                    this.stopTimer();
+                    
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
                     
                     // Level demotion logic
                     if (this.gameType === 'level') {
@@ -1182,25 +1340,33 @@
                     }
                     
                     this.generateQuestion();
-                    this.startTimer();
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
                     
-                    // Check if score is negative (game over condition)
-                    if (this.score < 0) {
-                        this.endGame(false);
-                    }
+                    // Negative scores are allowed - game continues until timer runs out
                 }
             }
 
             calculatePoints(timeElapsed) {
-                if (timeElapsed <= 3) return 5;
-                if (timeElapsed <= 6) return 4;
-                if (timeElapsed <= 9) return 3;
-                if (timeElapsed <= 12) return 2;
-                if (timeElapsed <= 15) return 1;
-                return 0; // Should not happen as timer would have ended
+                // timeElapsed is seconds since the current question was shown
+                // Bucket: 0–3s → 1, (3–6] → 2, (6–9] → 3, (9–12] → 4, (12–15] → 5, etc.
+                const bucket = Math.ceil(timeElapsed / 3);
+
+                if (this.gameType === 'mini') {
+                    // Mini: 5 points for ≤3s, then -1 per 3s, minimum 1 point
+                    // bucket=1 → 5, 2→4, 3→3, 4→2, 5→1, 6→1, 7→1, etc.
+                    const pts = Math.max(1, 6 - bucket); 
+                    return pts;
+                } else {
+                    // Level: base = 4 + currentLevel (L1→5 … L8→12)
+                    // Each extra 3s reduces by 1, min 1
+                    const base = 4 + this.currentLevel;
+                    // bucket=1 → base, 2→base-1, 3→base-2, ...
+                    const pts = (base + 1) - bucket;
+                    return Math.max(1, pts);
+                }
             }
 
-            endGame(isVictory = false) {
+            endGame() {
                 this.stopTimer();
                 this.gameScreen.classList.add('hidden');
                 this.gameOverScreen.classList.remove('hidden');
@@ -1208,12 +1374,60 @@
                 // Update the end screen medal to match the current medal state
                 this.updateEndScreenMedal();
                 
-                if (isVictory) {
-                    this.gameOverMessage.textContent = `Congrats! You won! Your final score is ${this.score}.`;
-                    this.gameOverMessage.className = 'victory-message';
+                if (this.gameType === 'level') {
+                    // Level mode: use new table layout
+                    const accuracy = this.totalQuestions > 0 ? Math.round((this.correctAnswers / this.totalQuestions) * 100) : 0;
+                    const title = "Time's Up!";
+                    
+                    this.gameOverMessage.innerHTML = `
+                        <div class="level-end-screen">
+                            <div class="end-title">${title}</div>
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Final Score</th>
+                                        <th>Accuracy</th>
+                                        <th>Questions Answered</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>${this.score}</td>
+                                        <td>${accuracy}%</td>
+                                        <td>${this.totalQuestions}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    this.gameOverMessage.className = 'level-end-screen';
                 } else {
-                    this.gameOverMessage.textContent = `Game over! Your final score is ${this.score}.`;
-                    this.gameOverMessage.className = 'game-over';
+                    // Mini mode: use same table layout as level mode
+                    const accuracy = this.totalQuestions > 0 ? Math.round((this.correctAnswers / this.totalQuestions) * 100) : 0;
+                    const title = "Time's Up!";
+                    
+                    this.gameOverMessage.innerHTML = `
+                        <div class="level-end-screen">
+                            <div class="end-title">${title}</div>
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Final Score</th>
+                                        <th>Accuracy</th>
+                                        <th>Questions Answered</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>${this.score}</td>
+                                        <td>${accuracy}%</td>
+                                        <td>${this.totalQuestions}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    this.gameOverMessage.className = 'level-end-screen';
                 }
             }
 
@@ -1233,7 +1447,7 @@
             }
 
             giveUp() {
-                this.endGame(false);
+                this.endGame();
             }
 
             updateScore() {
