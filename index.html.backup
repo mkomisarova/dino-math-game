@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Practice Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        .dinosaur-container {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            z-index: 10;
+        }
+
+        .dino {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .medal {
+            position: absolute;
+            top: 48%;
+            left: 35%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .medal.gray {
+            background: #777;
+        }
+
+        .medal.bronze {
+            background: #cd7f32;
+        }
+
+        .medal.silver {
+            background: #c0c0c0;
+        }
+
+        .medal.gold {
+            background: #ffd700;
+        }
+
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(200px, 1fr));
+            gap: 20px 24px;
+            width: 100%;
+            max-width: 480px;
+            margin-inline: auto;
+            justify-content: center;
+            justify-items: center;
+        }
+
+        .mode-selection .mode-btn:nth-child(5) {
+            grid-column: 1 / -1;
+            place-self: center;
+            width: 200px;
+        }
+
+        .operation-mode-selection {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(200px, 1fr));
+            gap: 20px 24px;
+            width: 100%;
+            max-width: 480px;
+            margin-inline: auto;
+            justify-content: center;
+            justify-items: center;
+        }
+
+        .operation-mode-selection .mode-btn:nth-child(3) {
+            grid-column: 1 / -1;
+            place-self: center;
+            width: 200px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 600px) {
+            .mode-selection {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+                width: 100%;
+                justify-items: center;
+            }
+            
+            .mode-selection .mode-btn {
+                width: 80%;
+                max-width: 280px;
+                justify-self: center;
+            }
+            
+            .mode-selection .mode-btn:nth-child(5) {
+                grid-column: 1;
+                justify-self: center;
+                width: 80%;
+                max-width: 280px;
+            }
+
+            .operation-mode-selection {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+                width: 100%;
+                justify-items: center;
+            }
+            
+            .operation-mode-selection .mode-btn {
+                width: 80%;
+                max-width: 280px;
+                justify-self: center;
+            }
+            
+            .operation-mode-selection .mode-btn:nth-child(3) {
+                grid-column: 1;
+                width: 80%;
+                max-width: 280px;
+                justify-self: center;
+            }
+        }
+
+        .mode-btn {
+            font-size: 1.3em;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-btn:active {
+            transform: translateY(0);
+        }
+
+        .multiplication-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .addition-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .subtraction-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .division-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+
+        .mixed-btn {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+
+        .mini-btn {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+
+        .level-btn {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        .negative-toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .negative-toggle-btn {
+            font-size: 0.9em;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #5d6d7e, #566573); /* Default OFF state - darker gray */
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .negative-toggle-btn.on {
+            background: linear-gradient(45deg, #2ecc71, #27ae60); /* ON state - green like Mini button */
+        }
+
+        .negative-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .negative-toggle-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Login Screen Styles */
+        .login-screen-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            margin: 50px auto;
+        }
+
+        /* Hide login screen by default */
+        .login-screen-container.hidden {
+            display: none;
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 40px;
+        }
+
+        .login-container h2 {
+            color: #ffd93d;
+            font-size: 1.8em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .username-input {
+            font-size: 1.2em;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            width: 250px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .username-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .login-btn {
+            font-size: 1.1em;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Username Display Styles */
+        .username-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .username-display span {
+            color: #ffd93d;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .logout-btn {
+            font-size: 0.8em;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .game-header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .mode-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffd93d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-display {
+            font-size: 1em;
+            font-weight: bold;
+            color: #4ecdc4;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-top: 5px;
+        }
+
+        .score {
+            font-size: 1.4em;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .timer {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ffd93d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 2px solid #ffd93d;
+        }
+
+        .timer.warning {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .question {
+            font-size: 1.8em;
+            margin: 10px 0 20px 0;
+            font-weight: bold;
+        }
+
+        .answer-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .answer-input {
+            font-size: 1.4em;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+            width: 180px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Hide spinner buttons for number inputs */
+        .answer-input::-webkit-outer-spin-button,
+        .answer-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .answer-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .number-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: fit-content;
+            max-width: 300px;
+            margin: 10px auto 20px auto;
+            justify-items: center;
+        }
+
+        .number-btn {
+            font-size: 1.2em;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+            aspect-ratio: 1;
+        }
+
+        .number-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .number-btn:active {
+            transform: scale(0.95);
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        button {
+            font-size: 1.1em;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .game-over {
+            font-size: 1.6em;
+            margin: 20px 0;
+            color: #ff6b6b;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .victory-message {
+            font-size: 1.6em;
+            margin: 20px 0;
+            color: #4ecdc4;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-end-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .level-end-screen .end-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f8f9fa;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .level-end-screen .stats-table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .level-end-screen .stats-table th,
+        .level-end-screen .stats-table td {
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .level-end-screen .stats-table th {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .level-end-screen .stats-table td {
+            background: rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .new-best-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .leaderboard-section {
+            margin-top: 20px;
+        }
+
+        .leaderboard-section h3 {
+            color: #ffd93d;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .current-player {
+            background: rgba(255, 215, 0, 0.2) !important;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+
+        /* Header with Username and Logout */
+        .header {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+        }
+
+        /* Ensure header is completely hidden when it has the hidden class */
+        .header.hidden {
+            display: none !important;
+        }
+
+        .play-again-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .switch-mode-btn {
+            background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+            color: #333;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+            color: #333;
+        }
+
+        .give-up-btn {
+            font-size: 0.9em;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .give-up-btn:hover {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .give-up-btn:active {
+            transform: translateY(0);
+        }
+
+        .game-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .score-feedback {
+            position: absolute;
+            top: -10px;
+            right: -40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 1000;
+            animation: scoreFeedbackAnimation 1.5s ease-out forwards;
+        }
+
+        .score-feedback.positive {
+            color: #4ecdc4;
+        }
+
+        .score-feedback.negative {
+            color: #ff6b6b;
+        }
+
+        @keyframes scoreFeedbackAnimation {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-40px) scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .question {
+                font-size: 1.5em;
+            }
+            
+            .timer {
+                font-size: 1.5em;
+                padding: 6px 12px;
+            }
+            
+            .give-up-btn {
+                font-size: 0.8em;
+                padding: 6px 12px;
+            }
+            
+            .answer-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .answer-input {
+                width: 160px;
+            }
+            
+            .number-keyboard {
+                max-width: 250px;
+                gap: 10px;
+            }
+            
+            .number-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.1em;
+            }
+
+            .dinosaur-container {
+                width: 120px;
+                height: 120px;
+                top: 70px;
+            }
+
+            .medal {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+
+            .score-feedback {
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1.1em;
+                margin-top: 5px;
+            }
+
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Username and Logout -->
+    <div id="header" class="header hidden">
+        <span id="currentUsername">Player</span>
+        <button id="logoutBtn" class="logout-btn">Log out</button>
+    </div>
+
+    <!-- Login Container (replaces main container when visible) -->
+    <div id="loginScreen" class="login-screen-container hidden">
+        <div class="login-container">
+            <h2>Enter Your Username</h2>
+            <input type="text" id="usernameInput" class="username-input" placeholder="Enter username" maxlength="20">
+            <button id="loginBtn" class="login-btn">Start Playing</button>
+        </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="container" id="mainContainer">
+        <h1>Math Practice Game</h1>
+        
+        <!-- Mode Selection Screen -->
+        <div id="modeSelectionScreen">
+            <div class="mode-selection">
+                <button id="additionBtn" class="mode-btn addition-btn">Addition</button>
+                <button id="multiplicationBtn" class="mode-btn multiplication-btn">Multiplication</button>
+                <button id="subtractionBtn" class="mode-btn subtraction-btn">Subtraction</button>
+                <button id="divisionBtn" class="mode-btn division-btn">Division</button>
+                <button id="mixedBtn" class="mode-btn mixed-btn">Mixed</button>
+            </div>
+            <div class="negative-toggle-container">
+                <button id="negativeToggleBtn" class="negative-toggle-btn">Negative Numbers: OFF</button>
+            </div>
+        </div>
+
+        <!-- Operation Mode Selection Screen -->
+        <div id="operationModeScreen" class="hidden">
+            <h2 id="operationTitle">Choose Mode</h2>
+            <div class="operation-mode-selection">
+                <button id="miniModeBtn" class="mode-btn mini-btn">Mini Version</button>
+                <button id="levelModeBtn" class="mode-btn level-btn">Level Mode</button>
+                <button id="backToModesBtn" class="mode-btn back-btn">Back to Modes</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <!-- Dinosaur with Medal -->
+            <div class="dinosaur-container">
+                <img src="dino.png" alt="Dinosaur" class="dino" id="dinosaurImage" />
+                <div class="medal gray" id="medal">5</div>
+            </div>
+            
+            <div class="game-header">
+                <div>
+                    <div class="mode-display" id="modeDisplay">Mode</div>
+                    <div class="level-display" id="levelDisplay"></div>
+                    <div class="score">Score: <span id="score">0</span></div>
+                </div>
+                <div class="game-header-right">
+                    <div class="timer" id="timer">15</div>
+                    <button id="giveUpBtn" class="give-up-btn">Give Up</button>
+                </div>
+            </div>
+            <div class="question" id="question"></div>
+            
+            <div class="answer-section">
+                <input type="text" id="answerInput" class="answer-input" placeholder="Your answer">
+                <button id="submitBtn" class="submit-btn">Submit</button>
+            </div>
+            
+            <!-- Number Keyboard -->
+            <div class="number-keyboard">
+                <button class="number-btn" data-number="1">1</button>
+                <button class="number-btn" data-number="2">2</button>
+                <button class="number-btn" data-number="3">3</button>
+                <button class="number-btn" data-number="4">4</button>
+                <button class="number-btn" data-number="5">5</button>
+                <button class="number-btn" data-number="6">6</button>
+                <button class="number-btn" data-number="7">7</button>
+                <button class="number-btn" data-number="8">8</button>
+                <button class="number-btn" data-number="9">9</button>
+                <button class="number-btn" data-number="-">-</button>
+                <button class="number-btn clear-btn" id="clearBtn">Clear</button>
+                <button class="number-btn" data-number="0">0</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="hidden">
+            <div class="game-over" id="gameOverMessage"></div>
+            <div class="game-buttons">
+                <button id="playAgainBtn" class="play-again-btn">Play Again</button>
+                <button id="switchModeBtn" class="switch-mode-btn">Switch Mode</button>
+            </div>
+            <!-- Dinosaur with Medal for End Screen - positioned below buttons -->
+            <div class="dinosaur-container" style="position: relative; top: auto; left: auto; transform: none; margin: 20px auto 0;">
+                <img src="dino.png" alt="Dinosaur" class="dino" id="endScreenDinosaur" />
+                <div class="medal gray" id="endScreenMedal">5</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MathPracticeGame {
+            constructor() {
+                this.score = 0;
+                this.currentAnswer = 0;
+                this.gameMode = 'multiplication'; // 'multiplication', 'addition', 'subtraction', 'division', or 'mixed'
+                this.gameType = 'mini'; // 'mini' or 'level'
+                this.currentLevel = 1;
+                this.correctStreak = 0;
+                this.medalStreak = 0; // Separate streak for medal progression
+                this.medalLevel = 10; // Dinosaur medal starts at level 10
+                this.timer = null;
+                this.timeLeft = 15;
+                this.questionStartTime = 0;
+                // Accuracy tracking for level mode
+                this.totalQuestions = 0;
+                this.correctAnswers = 0;
+                // Negative numbers toggle
+                this.allowNegatives = false;
+                // Username system
+                this.currentUsername = null;
+                this.initializeElements();
+                this.attachEventListeners();
+                this.checkLoginStatus();
+            }
+
+            initializeElements() {
+                this.mainContainer = document.getElementById('mainContainer');
+                this.loginScreen = document.getElementById('loginScreen');
+                this.modeSelectionScreen = document.getElementById('modeSelectionScreen');
+                this.operationModeScreen = document.getElementById('operationModeScreen');
+                this.gameScreen = document.getElementById('gameScreen');
+                this.gameOverScreen = document.getElementById('gameOverScreen');
+                this.multiplicationBtn = document.getElementById('multiplicationBtn');
+                this.additionBtn = document.getElementById('additionBtn');
+                this.subtractionBtn = document.getElementById('subtractionBtn');
+                this.divisionBtn = document.getElementById('divisionBtn');
+                this.mixedBtn = document.getElementById('mixedBtn');
+                this.negativeToggleBtn = document.getElementById('negativeToggleBtn');
+                this.miniModeBtn = document.getElementById('miniModeBtn');
+                this.levelModeBtn = document.getElementById('levelModeBtn');
+                this.backToModesBtn = document.getElementById('backToModesBtn');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.playAgainBtn = document.getElementById('playAgainBtn');
+                this.switchModeBtn = document.getElementById('switchModeBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.giveUpBtn = document.getElementById('giveUpBtn');
+                this.scoreElement = document.getElementById('score');
+                this.questionElement = document.getElementById('question');
+                this.answerInput = document.getElementById('answerInput');
+                this.gameOverMessage = document.getElementById('gameOverMessage');
+                this.timerElement = document.getElementById('timer');
+                this.modeDisplay = document.getElementById('modeDisplay');
+                this.levelDisplay = document.getElementById('levelDisplay');
+                this.operationTitle = document.getElementById('operationTitle');
+                this.dinosaurImage = document.getElementById('dinosaurImage');
+                this.medal = document.getElementById('medal');
+                this.endScreenDinosaur = document.getElementById('endScreenDinosaur');
+                this.endScreenMedal = document.getElementById('endScreenMedal');
+                this.numberButtons = document.querySelectorAll('.number-btn[data-number]');
+                // Username system elements
+                this.usernameInput = document.getElementById('usernameInput');
+                this.loginBtn = document.getElementById('loginBtn');
+                this.currentUsernameElement = document.getElementById('currentUsername');
+                this.logoutBtn = document.getElementById('logoutBtn');
+                this.header = document.getElementById('header');
+                
+                // Ensure header starts completely hidden
+                this.header.classList.add('hidden');
+                this.logoutBtn.style.display = 'none';
+                
+                // Add Enter key listener for username input
+                this.usernameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.handleLogin();
+                    }
+                });
+            }
+
+            attachEventListeners() {
+                this.multiplicationBtn.addEventListener('click', () => this.selectOperation('multiplication'));
+                this.additionBtn.addEventListener('click', () => this.selectOperation('addition'));
+                this.subtractionBtn.addEventListener('click', () => this.selectOperation('subtraction'));
+                this.divisionBtn.addEventListener('click', () => this.selectOperation('division'));
+                this.mixedBtn.addEventListener('click', () => this.selectOperation('mixed'));
+                this.negativeToggleBtn.addEventListener('click', () => this.toggleNegatives());
+                this.loginBtn.addEventListener('click', () => this.handleLogin());
+                this.logoutBtn.addEventListener('click', () => this.handleLogout());
+                this.miniModeBtn.addEventListener('click', () => this.startGame(this.selectedOperation, 'mini'));
+                this.levelModeBtn.addEventListener('click', () => this.startGame(this.selectedOperation, 'level'));
+                this.backToModesBtn.addEventListener('click', () => this.backToModes());
+                this.submitBtn.addEventListener('click', () => this.submitAnswer());
+                this.playAgainBtn.addEventListener('click', () => this.resetGame());
+                this.switchModeBtn.addEventListener('click', () => this.switchMode());
+                this.clearBtn.addEventListener('click', () => this.clearInput());
+                this.giveUpBtn.addEventListener('click', () => this.giveUp());
+                
+                this.answerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.submitAnswer();
+                        return;
+                    }
+                    
+                    // Allow digits (0-9)
+                    if (e.key >= '0' && e.key <= '9') {
+                        return; // Allow the keypress
+                    }
+                    
+                    // Allow minus sign only as the first character
+                    if (e.key === '-') {
+                        if (e.target.value === '') {
+                            return; // Allow minus if field is empty
+                        }
+                    }
+                    
+                    // Block all other characters
+                    e.preventDefault();
+                });
+
+                // Number keyboard event listeners
+                this.numberButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const number = btn.getAttribute('data-number');
+                        this.appendToInput(number);
+                    });
+                });
+            }
+
+            selectOperation(operation) {
+                this.selectedOperation = operation;
+                const operationNames = {
+                    'multiplication': 'Multiplication',
+                    'addition': 'Addition',
+                    'subtraction': 'Subtraction',
+                    'division': 'Division',
+                    'mixed': 'Mixed'
+                };
+                this.operationTitle.textContent = `${operationNames[operation]} - Choose Mode`;
+                this.mainContainer.classList.remove('hidden');
+                this.modeSelectionScreen.classList.add('hidden');
+                this.operationModeScreen.classList.remove('hidden');
+                // Show header with logout button on operation selection screen
+                this.header.classList.remove('hidden');
+                this.logoutBtn.style.display = 'inline-block';
+            }
+
+            backToModes() {
+                this.mainContainer.classList.remove('hidden');
+                this.operationModeScreen.classList.add('hidden');
+                this.modeSelectionScreen.classList.remove('hidden');
+                // Show header with logout button when returning to modes
+                this.header.classList.remove('hidden');
+                this.logoutBtn.style.display = 'inline-block';
+            }
+
+            toggleNegatives() {
+                this.allowNegatives = !this.allowNegatives;
+                this.negativeToggleBtn.textContent = this.allowNegatives ? 'Negative Numbers: ON' : 'Negative Numbers: OFF';
+                
+                // Update button color based on state
+                if (this.allowNegatives) {
+                    this.negativeToggleBtn.classList.add('on');
+                } else {
+                    this.negativeToggleBtn.classList.remove('on');
+                }
+            }
+
+            applyNegativeProbability(num) {
+                if (this.allowNegatives && Math.random() < 0.3) {
+                    return -num;
+                }
+                return num;
+            }
+
+            checkLoginStatus() {
+                const savedUsername = localStorage.getItem('mathGameUsername');
+                if (savedUsername) {
+                    this.currentUsername = savedUsername;
+                    this.showMainMenu();
+                } else {
+                    this.showLoginScreen();
+                }
+            }
+
+            showLoginScreen() {
+                this.loginScreen.classList.remove('hidden');
+                this.mainContainer.classList.add('hidden');
+                // Hide header on login screen - ensure it's completely hidden
+                this.header.classList.add('hidden');
+                this.logoutBtn.style.display = 'none';
+            }
+
+            showMainMenu() {
+                this.loginScreen.classList.add('hidden');
+                this.mainContainer.classList.remove('hidden');
+                this.modeSelectionScreen.classList.remove('hidden');
+                this.operationModeScreen.classList.add('hidden');
+                this.gameScreen.classList.add('hidden');
+                this.gameOverScreen.classList.add('hidden');
+                this.currentUsernameElement.textContent = this.currentUsername;
+                // Show header with logout button on main menu
+                this.header.classList.remove('hidden');
+                this.logoutBtn.style.display = 'inline-block';
+            }
+
+            showGameScreen() {
+                this.loginScreen.classList.add('hidden');
+                this.mainContainer.classList.remove('hidden');
+                this.modeSelectionScreen.classList.add('hidden');
+                this.operationModeScreen.classList.add('hidden');
+                this.gameScreen.classList.remove('hidden');
+                this.gameOverScreen.classList.add('hidden');
+                this.currentUsernameElement.textContent = this.currentUsername;
+                // Hide header during active gameplay
+                this.header.classList.add('hidden');
+            }
+
+            handleLogin() {
+                const username = this.usernameInput.value.trim();
+                if (username) {
+                    this.currentUsername = username;
+                    localStorage.setItem('mathGameUsername', username);
+                    this.showMainMenu();
+                }
+            }
+
+            handleLogout() {
+                this.currentUsername = null;
+                localStorage.removeItem('mathGameUsername');
+                this.usernameInput.value = '';
+                // Ensure header is hidden before showing login screen
+                this.header.classList.add('hidden');
+                this.logoutBtn.style.display = 'none';
+                this.showLoginScreen();
+            }
+
+
+            getBestScoreKey(mode, type) {
+                return `bestScore_${this.currentUsername}_${mode}_${type}`;
+            }
+
+            getBestScore(mode, type) {
+                const key = this.getBestScoreKey(mode, type);
+                const saved = localStorage.getItem(key);
+                return saved ? parseInt(saved) : 0;
+            }
+
+            saveBestScore(mode, type, score) {
+                const currentBest = this.getBestScore(mode, type);
+                if (score > currentBest) {
+                    const key = this.getBestScoreKey(mode, type);
+                    localStorage.setItem(key, score.toString());
+                    return true; // New best score
+                }
+                return false; // Not a new best score
+            }
+
+            getAllBestScores(mode, type) {
+                const scores = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('bestScore_') && key.endsWith(`_${mode}_${type}`)) {
+                        const username = key.replace('bestScore_', '').replace(`_${mode}_${type}`, '');
+                        const score = parseInt(localStorage.getItem(key));
+                        scores.push({ username, score });
+                    }
+                }
+                return scores.sort((a, b) => b.score - a.score); // Sort by score descending
+            }
+
+            startGame(mode, type = 'mini') {
+                this.gameMode = mode;
+                this.gameType = type;
+                this.score = 0;
+                this.currentLevel = 1;
+                this.correctStreak = 0;
+                this.medalStreak = 0; // Reset medal streak
+                this.medalLevel = type === 'mini' ? 5 : 10; // Mini mode starts at 5, level mode at 10
+                // Reset accuracy tracking
+                this.totalQuestions = 0;
+                this.correctAnswers = 0;
+                // Set timer based on game type
+                this.timeLeft = type === 'level' ? 180 : 60; // 3 minutes for level mode, 1 minute for mini mode
+                this.updateScore();
+                this.updateModeDisplay();
+                this.updateLevelDisplay();
+                this.updateMedal();
+                this.showGameScreen();
+                this.generateQuestion();
+                this.startTimer();
+                this.answerInput.focus();
+            }
+
+            generateQuestion() {
+                let num1, num2, operator, answer;
+                let currentMode = this.gameMode;
+                
+                // For mixed mode, randomly select one of the four operation types
+                if (currentMode === 'mixed') {
+                    const modes = ['multiplication', 'addition', 'subtraction', 'division'];
+                    currentMode = modes[Math.floor(Math.random() * modes.length)];
+                }
+                
+                if (this.gameType === 'mini') {
+                    // Mini mode - original logic
+                    switch (currentMode) {
+                        case 'multiplication':
+                            num1 = this.applyNegativeProbability(Math.floor(Math.random() * 10) + 1);
+                            num2 = this.applyNegativeProbability(Math.floor(Math.random() * 10) + 1);
+                            operator = '×';
+                            answer = num1 * num2;
+                            break;
+                            
+                        case 'addition':
+                            num1 = this.applyNegativeProbability(Math.floor(Math.random() * 50) + 1);
+                            num2 = this.applyNegativeProbability(Math.floor(Math.random() * 50) + 1);
+                            operator = '+';
+                            answer = num1 + num2;
+                            break;
+                            
+                        case 'subtraction':
+                            num1 = this.applyNegativeProbability(Math.floor(Math.random() * 100) + 1);
+                            num2 = this.applyNegativeProbability(Math.floor(Math.random() * 100) + 1);
+                            if (Math.abs(num1) < Math.abs(num2)) {
+                                [num1, num2] = [num2, num1];
+                            }
+                            operator = '−';
+                            answer = num1 - num2;
+                            break;
+                            
+                        case 'division':
+                            num1 = this.applyNegativeProbability(Math.floor(Math.random() * 10) + 1);
+                            num2 = this.applyNegativeProbability(Math.floor(Math.random() * 10) + 1);
+                            const dividend = num1 * num2;
+                            operator = '÷';
+                            answer = num1;
+                            num1 = dividend;
+                            break;
+                    }
+                } else {
+                    // Level mode - new level-based logic
+                    switch (currentMode) {
+                        case 'addition':
+                            [num1, num2, answer] = this.generateAdditionLevel();
+                            operator = '+';
+                            break;
+                            
+                        case 'subtraction':
+                            [num1, num2, answer] = this.generateSubtractionLevel();
+                            operator = '−';
+                            break;
+                            
+                        case 'multiplication':
+                            [num1, num2, answer] = this.generateMultiplicationLevel();
+                            operator = '×';
+                            break;
+                            
+                        case 'division':
+                            [num1, num2, answer] = this.generateDivisionLevel();
+                            operator = '÷';
+                            break;
+                            
+                        case 'mixed':
+                            [num1, num2, answer, operator] = this.generateMixedLevel();
+                            break;
+                    }
+                }
+                
+                this.currentAnswer = answer;
+                this.questionElement.textContent = `${num1} ${operator} ${num2} = ?`;
+                this.answerInput.value = '';
+                
+                // Reset per-problem stopwatch here for EVERY question
+                this.questionStartTime = Date.now();
+            }
+
+            // Level generation methods
+            generateAdditionLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Sum ≤ 10
+                        answer = Math.floor(Math.random() * 10) + 1;
+                        num1 = Math.floor(Math.random() * answer) + 1;
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 2: // Sum > 10 and ≤ 20, both > 5
+                        answer = Math.floor(Math.random() * 10) + 11; // 11-20
+                        num1 = Math.floor(Math.random() * (answer - 6)) + 6; // 6 to answer-1
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 3: // Sum > 20 and ≤ 50, both > 20
+                        answer = Math.floor(Math.random() * 30) + 21; // 21-50
+                        num1 = Math.floor(Math.random() * (answer - 21)) + 21; // 21 to answer-1
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 4: // Sum > 50 and ≤ 100, both > 10
+                        answer = Math.floor(Math.random() * 50) + 51; // 51-100
+                        num1 = Math.floor(Math.random() * (answer - 11)) + 11; // 11 to answer-1
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 5: // Sum > 100 and ≤ 1000, both > 100
+                        answer = Math.floor(Math.random() * 800) + 201; // 201-1000
+                        num1 = Math.floor(Math.random() * (answer - 101)) + 101; // 101 to answer-1
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 6: // Sum > 1000 and ≤ 10000, both > 1000
+                        answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
+                        num1 = Math.floor(Math.random() * (answer - 1001)) + 1001; // 1001 to answer-1
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 7: // Sum > 10000 and ≤ 20000, both > 1000
+                        answer = Math.floor(Math.random() * 10000) + 10001; // 10001-20000
+                        num1 = Math.floor(Math.random() * (answer - 1001)) + 1001; // 1001 to answer-1
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 8: // Sum > 20000 and ≤ 100000, both > 10000
+                        answer = Math.floor(Math.random() * 80000) + 20001; // 20001-100000
+                        num1 = Math.floor(Math.random() * (answer - 10001)) + 10001; // 10001 to answer-1
+                        num2 = answer - num1;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            generateSubtractionLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Result ≤ 10
+                        answer = Math.floor(Math.random() * 10) + 1;
+                        num1 = answer + Math.floor(Math.random() * 10) + 1;
+                        num2 = num1 - answer;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 2: // Result > 10 and ≤ 20, both > 5
+                        answer = Math.floor(Math.random() * 10) + 11; // 11-20
+                        num1 = answer + Math.floor(Math.random() * 20) + 1;
+                        num2 = num1 - answer;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 3: // Result > 20 and ≤ 50, both > 20
+                        answer = Math.floor(Math.random() * 30) + 21; // 21-50
+                        num1 = answer + Math.floor(Math.random() * 50) + 1;
+                        num2 = num1 - answer;
+                        num1 = this.applyNegativeProbability(num1);
+                        num2 = this.applyNegativeProbability(num2);
+                        break;
+                    case 4: // Result > 50 and ≤ 100, both > 10
+                        answer = Math.floor(Math.random() * 50) + 51; // 51-100
+                        num1 = answer + Math.floor(Math.random() * 50) + 11; // answer+11 to answer+60
+                        num2 = num1 - answer;
+                        break;
+                    case 5: // Result > 100 and ≤ 1000, both > 100
+                        answer = Math.floor(Math.random() * 800) + 201; // 201-1000
+                        num1 = answer + Math.floor(Math.random() * 500) + 101; // answer+101 to answer+600
+                        num2 = num1 - answer;
+                        break;
+                    case 6: // Result > 1000 and ≤ 10000, both > 1000
+                        answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
+                        num1 = answer + Math.floor(Math.random() * 5000) + 1001; // answer+1001 to answer+6000
+                        num2 = num1 - answer;
+                        break;
+                    case 7: // Result > 10000 and ≤ 20000, both > 1000
+                        answer = Math.floor(Math.random() * 10000) + 10001; // 10001-20000
+                        num1 = answer + Math.floor(Math.random() * 5000) + 1001; // answer+1001 to answer+6000
+                        num2 = num1 - answer;
+                        break;
+                    case 8: // Result > 20000 and ≤ 100000, both > 10000
+                        answer = Math.floor(Math.random() * 80000) + 20001; // 20001-100000
+                        num1 = answer + Math.floor(Math.random() * 50000) + 10001; // answer+10001 to answer+60000
+                        num2 = num1 - answer;
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            generateMultiplicationLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Product ≤ 10 (0 allowed)
+                        if (Math.random() < 0.1) { // 10% chance for 0
+                            num1 = 0;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                        } else {
+                            // Generate uniformly distributed products 1-10
+                            answer = Math.floor(Math.random() * 10) + 1;
+                            const factors = this.getFactors(answer);
+                            const factor = factors[Math.floor(Math.random() * factors.length)];
+                            num1 = factor;
+                            num2 = answer / factor;
+                        }
+                        answer = num1 * num2;
+                        break;
+                    case 2: // Both numbers multiply to > 10 and ≤ 50, numbers ≤ 10
+                        const validCombos2 = [];
+                        for (let i = 1; i <= 10; i++) {
+                            for (let j = 1; j <= 10; j++) {
+                                const product = i * j;
+                                if (product > 10 && product <= 50) {
+                                    validCombos2.push([i, j]);
+                                }
+                            }
+                        }
+                        const combo2 = validCombos2[Math.floor(Math.random() * validCombos2.length)];
+                        num1 = combo2[0];
+                        num2 = combo2[1];
+                        answer = num1 * num2;
+                        break;
+                    case 3: // Both numbers multiply to > 50 and ≤ 100, numbers ≤ 10
+                        const validCombos3 = [];
+                        for (let i = 1; i <= 10; i++) {
+                            for (let j = 1; j <= 10; j++) {
+                                const product = i * j;
+                                if (product > 50 && product <= 100) {
+                                    validCombos3.push([i, j]);
+                                }
+                            }
+                        }
+                        const combo3 = validCombos3[Math.floor(Math.random() * validCombos3.length)];
+                        num1 = combo3[0];
+                        num2 = combo3[1];
+                        answer = num1 * num2;
+                        break;
+                    case 4: // Product < 100, with one number > 10, other > 3
+                        const validCombos4 = [];
+                        for (let i = 11; i <= 20; i++) {
+                            for (let j = 4; j <= 9; j++) {
+                                const product = i * j;
+                                if (product < 100) {
+                                    validCombos4.push([i, j]);
+                                }
+                            }
+                        }
+                        const combo4 = validCombos4[Math.floor(Math.random() * validCombos4.length)];
+                        num1 = combo4[0];
+                        num2 = combo4[1];
+                        answer = num1 * num2;
+                        break;
+                    case 5: // Both numbers 10-20
+                        num1 = Math.floor(Math.random() * 11) + 10; // 10-20
+                        num2 = Math.floor(Math.random() * 11) + 10; // 10-20
+                        answer = num1 * num2;
+                        break;
+                    case 6: // Both numbers 10-50, at least one > 20
+                        if (Math.random() < 0.5) {
+                            num1 = Math.floor(Math.random() * 31) + 21; // 21-50
+                            num2 = Math.floor(Math.random() * 31) + 10; // 10-40
+                        } else {
+                            num1 = Math.floor(Math.random() * 31) + 10; // 10-40
+                            num2 = Math.floor(Math.random() * 31) + 21; // 21-50
+                        }
+                        answer = num1 * num2;
+                        break;
+                    case 7: // Both numbers 21-99
+                        num1 = Math.floor(Math.random() * 79) + 21; // 21-99
+                        num2 = Math.floor(Math.random() * 79) + 21; // 21-99
+                        answer = num1 * num2;
+                        break;
+                    case 8: // Both numbers 51-99
+                        num1 = Math.floor(Math.random() * 49) + 51; // 51-99
+                        num2 = Math.floor(Math.random() * 49) + 51; // 51-99
+                        answer = num1 * num2;
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            generateDivisionLevel() {
+                let num1, num2, answer;
+                switch (this.currentLevel) {
+                    case 1: // Result ≤ 10 (0 allowed)
+                        if (Math.random() < 0.1) { // 10% chance for 0
+                            answer = 0;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                        } else {
+                            answer = Math.floor(Math.random() * 10) + 1;
+                            num2 = Math.floor(Math.random() * 10) + 1;
+                        }
+                        num1 = answer * num2;
+                        break;
+                    case 2: // Result > 10 and ≤ 50, numbers ≤ 10
+                        answer = Math.floor(Math.random() * 40) + 11; // 11-50
+                        num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+                        num1 = answer * num2;
+                        break;
+                    case 3: // Result > 50 and ≤ 100, numbers ≤ 10
+                        answer = Math.floor(Math.random() * 50) + 51; // 51-100
+                        num2 = Math.floor(Math.random() * 10) + 1; // 1-10
+                        num1 = answer * num2;
+                        break;
+                    case 4: // Result < 100, with one number > 10, other > 3
+                        answer = Math.floor(Math.random() * 50) + 1; // 1-50
+                        num2 = Math.floor(Math.random() * 6) + 4; // 4-9
+                        num1 = answer * num2;
+                        break;
+                    case 5: // Both numbers 10-20
+                        answer = Math.floor(Math.random() * 11) + 10; // 10-20
+                        num2 = Math.floor(Math.random() * 11) + 10; // 10-20
+                        num1 = answer * num2;
+                        break;
+                    case 6: // Both numbers 10-50, at least one > 20
+                        if (Math.random() < 0.5) {
+                            answer = Math.floor(Math.random() * 30) + 21; // 21-50
+                            num2 = Math.floor(Math.random() * 31) + 10; // 10-40
+                        } else {
+                            answer = Math.floor(Math.random() * 31) + 10; // 10-40
+                            num2 = Math.floor(Math.random() * 30) + 21; // 21-50
+                        }
+                        num1 = answer * num2;
+                        break;
+                    case 7: // Both numbers 21-99
+                        answer = Math.floor(Math.random() * 79) + 21; // 21-99
+                        num2 = Math.floor(Math.random() * 79) + 21; // 21-99
+                        num1 = answer * num2;
+                        break;
+                    case 8: // Both numbers 51-99
+                        answer = Math.floor(Math.random() * 49) + 51; // 51-99
+                        num2 = Math.floor(Math.random() * 49) + 51; // 51-99
+                        num1 = answer * num2;
+                        break;
+                }
+                return [num1, num2, answer];
+            }
+
+            getFactors(n) {
+                const factors = [];
+                for (let i = 1; i <= n; i++) {
+                    if (n % i === 0) {
+                        factors.push(i);
+                    }
+                }
+                return factors;
+            }
+
+            generateMixedLevel() {
+                // Randomly select one of the four operations
+                const operations = ['addition', 'subtraction', 'multiplication', 'division'];
+                const selectedOperation = operations[Math.floor(Math.random() * operations.length)];
+                
+                let num1, num2, answer, operator;
+                
+                // Generate problem based on selected operation and current level
+                switch (selectedOperation) {
+                    case 'addition':
+                        [num1, num2, answer] = this.generateAdditionLevel();
+                        operator = '+';
+                        break;
+                        
+                    case 'subtraction':
+                        [num1, num2, answer] = this.generateSubtractionLevel();
+                        operator = '−';
+                        break;
+                        
+                    case 'multiplication':
+                        [num1, num2, answer] = this.generateMultiplicationLevel();
+                        operator = '×';
+                        break;
+                        
+                    case 'division':
+                        [num1, num2, answer] = this.generateDivisionLevel();
+                        operator = '÷';
+                        break;
+                }
+                
+                return [num1, num2, answer, operator];
+            }
+
+            startTimer() {
+                this.updateTimerDisplay();
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimerDisplay();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            updateTimerDisplay() {
+                if (this.gameType === 'level') {
+                    // Display as minutes:seconds for level mode
+                    const minutes = Math.floor(this.timeLeft / 60);
+                    const seconds = this.timeLeft % 60;
+                    this.timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    if (this.timeLeft <= 5) {
+                        this.timerElement.classList.add('warning');
+                    } else {
+                        this.timerElement.classList.remove('warning');
+                    }
+                } else {
+                    // Display as seconds for mini mode
+                    this.timerElement.textContent = this.timeLeft;
+                    if (this.timeLeft <= 5) {
+                        this.timerElement.classList.add('warning');
+                    } else {
+                        this.timerElement.classList.remove('warning');
+                    }
+                }
+            }
+
+            stopTimer() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+            }
+
+            appendToInput(number) {
+                // Handle minus sign
+                if (number === '-') {
+                    // Only allow minus at the beginning if field is empty
+                    if (this.answerInput.value === '') {
+                        this.answerInput.value = '-';
+                    }
+                } else {
+                    // For digits, just append
+                    this.answerInput.value += number;
+                }
+            }
+
+            clearInput() {
+                this.answerInput.value = '';
+            }
+
+            submitAnswer() {
+                // Check if answer field is empty or only whitespace
+                if (!this.answerInput.value.trim()) {
+                    return; // Do nothing if empty
+                }
+                
+                const userAnswer = parseInt(this.answerInput.value);
+                
+                // Track total questions answered
+                this.totalQuestions++;
+                
+                if (userAnswer === this.currentAnswer) {
+                    // Track correct answers
+                    this.correctAnswers++;
+                    
+                    // Calculate points based on speed and level
+                    const timeElapsed = (Date.now() - this.questionStartTime) / 1000;
+                    const points = this.calculatePoints(timeElapsed);
+                    
+                    this.score += points;
+                    this.updateScore();
+                    this.showScoreFeedback(points, true);
+                    
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
+                    
+                    // Level progression logic
+                    if (this.gameType === 'level') {
+                        this.correctStreak++;
+                        // Check advancement requirements
+                        let requiredStreak = 5; // Default: 5 correct answers
+                        if (this.currentLevel === 6 || this.currentLevel === 7) {
+                            requiredStreak = 10; // All disciplines: levels 6-7 need 10 correct answers
+                        }
+                        
+                        if (this.correctStreak >= requiredStreak && this.currentLevel < 8) {
+                            this.currentLevel++;
+                            this.correctStreak = 0;
+                            this.updateLevelDisplay();
+                        }
+                    }
+                    
+                    // Medal progression (decreases every 5 correct answers for level mode, 4 for mini mode)
+                    this.medalStreak++;
+                    const requiredStreak = this.gameType === 'mini' ? 4 : 5;
+                    if (this.medalStreak >= requiredStreak && this.medalLevel > 1) {
+                        this.medalLevel--;
+                        this.medalStreak = 0;
+                        this.updateMedal();
+                    }
+                    
+                    // No score-based win conditions - game continues until timer runs out
+                    this.generateQuestion();
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
+                } else {
+                    // Wrong answer: subtract 5 points and continue
+                    this.score -= 5;
+                    this.updateScore();
+                    this.showScoreFeedback(5, false);
+                    
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
+                    
+                    // Level demotion logic
+                    if (this.gameType === 'level') {
+                        this.correctStreak = 0;
+                        if (this.currentLevel > 1) {
+                            this.currentLevel--;
+                            this.updateLevelDisplay();
+                        }
+                    }
+                    
+                    this.generateQuestion();
+                    // Mini mode now uses single 1-minute timer, no per-question restart needed
+                    
+                    // Negative scores are allowed - game continues until timer runs out
+                }
+            }
+
+            calculatePoints(timeElapsed) {
+                // timeElapsed is seconds since the current question was shown
+                // Bucket: 0–3s → 1, (3–6] → 2, (6–9] → 3, (9–12] → 4, (12–15] → 5, etc.
+                const bucket = Math.ceil(timeElapsed / 3);
+
+                if (this.gameType === 'mini') {
+                    // Mini: 5 points for ≤3s, then -1 per 3s, minimum 1 point
+                    // bucket=1 → 5, 2→4, 3→3, 4→2, 5→1, 6→1, 7→1, etc.
+                    const pts = Math.max(1, 6 - bucket); 
+                    return pts;
+                } else {
+                    // Level: base = 4 + currentLevel (L1→5 … L8→12)
+                    // Each extra 3s reduces by 1, min 1
+                    const base = 4 + this.currentLevel;
+                    // bucket=1 → base, 2→base-1, 3→base-2, ...
+                    const pts = (base + 1) - bucket;
+                    return Math.max(1, pts);
+                }
+            }
+
+            endGame() {
+                this.stopTimer();
+                this.gameScreen.classList.add('hidden');
+                this.gameOverScreen.classList.remove('hidden');
+                // Show header with logout button on game over screen
+                this.header.classList.remove('hidden');
+                this.logoutBtn.style.display = 'inline-block';
+                
+                // Update the end screen medal to match the current medal state
+                this.updateEndScreenMedal();
+                
+                // Save best score and check if it's a new record
+                const isNewBest = this.saveBestScore(this.gameMode, this.gameType, this.score);
+                const bestScore = this.getBestScore(this.gameMode, this.gameType);
+                const leaderboard = this.getAllBestScores(this.gameMode, this.gameType);
+                
+                const accuracy = this.totalQuestions > 0 ? Math.round((this.correctAnswers / this.totalQuestions) * 100) : 0;
+                const title = "Time's Up!";
+                
+                // Create leaderboard table
+                let leaderboardHTML = '';
+                if (leaderboard.length > 0) {
+                    leaderboardHTML = `
+                        <div class="leaderboard-section">
+                            <h3>Leaderboard</h3>
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Player</th>
+                                        <th>Best Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${leaderboard.map((entry, index) => `
+                                        <tr class="${entry.username === this.currentUsername ? 'current-player' : ''}">
+                                            <td>${index + 1}</td>
+                                            <td>${entry.username}</td>
+                                            <td>${entry.score}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                this.gameOverMessage.innerHTML = `
+                    <div class="level-end-screen">
+                        <div class="end-title">${title}</div>
+                        ${isNewBest ? '<div class="new-best-score">🎉 New Best Score! 🎉</div>' : ''}
+                        <table class="stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Final Score</th>
+                                    <th>Your Best</th>
+                                    <th>Accuracy</th>
+                                    <th>Questions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${this.score}</td>
+                                    <td>${bestScore}</td>
+                                    <td>${accuracy}%</td>
+                                    <td>${this.totalQuestions}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        ${leaderboardHTML}
+                    </div>
+                `;
+                this.gameOverMessage.className = 'level-end-screen';
+            }
+
+            resetGame() {
+                // Restore the top dinosaur visibility
+                this.dinosaurImage.style.display = 'block';
+                this.startGame(this.gameMode, this.gameType);
+            }
+
+            switchMode() {
+                // Restore the top dinosaur visibility
+                this.dinosaurImage.style.display = 'block';
+                this.mainContainer.classList.remove('hidden');
+                this.modeSelectionScreen.classList.remove('hidden');
+                this.gameScreen.classList.add('hidden');
+                this.gameOverScreen.classList.add('hidden');
+                // Show header with logout button when switching modes
+                this.header.classList.remove('hidden');
+                this.logoutBtn.style.display = 'inline-block';
+                this.stopTimer();
+            }
+
+            giveUp() {
+                this.endGame();
+            }
+
+            updateScore() {
+                this.scoreElement.textContent = this.score;
+            }
+
+            updateModeDisplay() {
+                const modeNames = {
+                    'multiplication': 'Multiplication',
+                    'addition': 'Addition',
+                    'subtraction': 'Subtraction',
+                    'division': 'Division',
+                    'mixed': 'Mixed'
+                };
+                this.modeDisplay.textContent = modeNames[this.gameMode];
+            }
+
+            updateLevelDisplay() {
+                if (this.gameType === 'level') {
+                    this.levelDisplay.textContent = `Level ${this.currentLevel}`;
+                } else {
+                    this.levelDisplay.textContent = '';
+                }
+            }
+
+            updateMedal() {
+                this.medal.style.display = 'flex';
+                this.medal.textContent = this.medalLevel;
+                
+                // Update medal color based on level
+                this.medal.className = 'medal';
+                if (this.medalLevel >= 4 && this.medalLevel <= 10) {
+                    this.medal.classList.add('gray');
+                } else if (this.medalLevel === 3) {
+                    this.medal.classList.add('bronze');
+                } else if (this.medalLevel === 2) {
+                    this.medal.classList.add('silver');
+                } else if (this.medalLevel === 1) {
+                    this.medal.classList.add('gold');
+                }
+            }
+
+            getMedalColorClass() {
+                if (this.medalLevel >= 4 && this.medalLevel <= 10) {
+                    return 'gray';
+                } else if (this.medalLevel === 3) {
+                    return 'bronze';
+                } else if (this.medalLevel === 2) {
+                    return 'silver';
+                } else if (this.medalLevel === 1) {
+                    return 'gold';
+                }
+                return 'gray';
+            }
+
+            updateEndScreenMedal() {
+                this.endScreenMedal.style.display = 'flex';
+                this.endScreenMedal.textContent = this.medalLevel;
+                
+                // Update medal color based on level
+                this.endScreenMedal.className = 'medal';
+                if (this.medalLevel >= 4 && this.medalLevel <= 10) {
+                    this.endScreenMedal.classList.add('gray');
+                } else if (this.medalLevel === 3) {
+                    this.endScreenMedal.classList.add('bronze');
+                } else if (this.medalLevel === 2) {
+                    this.endScreenMedal.classList.add('silver');
+                } else if (this.medalLevel === 1) {
+                    this.endScreenMedal.classList.add('gold');
+                }
+            }
+
+            showScoreFeedback(points, isPositive) {
+                const feedback = document.createElement('div');
+                feedback.className = `score-feedback ${isPositive ? 'positive' : 'negative'}`;
+                feedback.textContent = `${isPositive ? '+' : '-'}${points}`;
+                
+                // Add to the score element
+                this.scoreElement.appendChild(feedback);
+                
+                // Remove the feedback element after animation
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.parentNode.removeChild(feedback);
+                    }
+                }, 1500);
+            }
+        }
+
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MathPracticeGame();
+        });
+    </script>
+</body>
+</html>
