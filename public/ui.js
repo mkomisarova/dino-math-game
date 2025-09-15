@@ -113,15 +113,24 @@ class UIManager {
     }
 
     showMainMenu() {
+        console.log('🟡 showMainMenu() called');
+        console.log('🟡 Hiding login screen and showing main container...');
+        
         this.loginScreen.classList.add('hidden');
         this.mainContainer.classList.remove('hidden');
         this.modeSelectionScreen.classList.remove('hidden');
         this.operationModeScreen.classList.add('hidden');
         this.gameScreen.classList.add('hidden');
         this.gameOverScreen.classList.add('hidden');
+        
+        console.log('🟡 Updating username display...');
         this.game.user.updateUsernameDisplay();
+        
         // Show header with logout button on main menu
+        console.log('🟡 Showing header...');
         this.game.user.showHeader();
+        
+        console.log('🟡 Main menu displayed successfully');
     }
 
     showGameScreen() {
@@ -250,3 +259,5 @@ class UIManager {
         }, 1500);
     }
 }
+
+export { UIManager };

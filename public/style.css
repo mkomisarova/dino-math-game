@@ -1,0 +1,1387 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 10px;
+    margin: 0;
+}
+
+.container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    margin: 0 auto;
+}
+
+.dinosaur-container {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 150px;
+    z-index: 10;
+}
+
+.dino {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.medal {
+    position: absolute;
+    top: 48%;
+    left: 35%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.medal.gray {
+    background: #777;
+}
+
+.medal.bronze {
+    background: #cd7f32;
+}
+
+.medal.silver {
+    background: #c0c0c0;
+}
+
+.medal.gold {
+    background: #ffd700;
+}
+
+
+h1 {
+    font-size: 2.2em;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mode-selection {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    gap: 20px 24px;
+    width: 100%;
+    max-width: 480px;
+    margin-inline: auto;
+    justify-content: center;
+    justify-items: center;
+}
+
+.mode-selection .mode-btn:nth-child(5) {
+    grid-column: 1 / -1;
+    place-self: center;
+    width: 200px;
+}
+
+.operation-mode-selection {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    gap: 20px 24px;
+    width: 100%;
+    max-width: 480px;
+    margin-inline: auto;
+    justify-content: center;
+    justify-items: center;
+}
+
+.operation-mode-selection .mode-btn:nth-child(3) {
+    grid-column: 1 / -1;
+    place-self: center;
+    width: 200px;
+    white-space: nowrap;
+}
+
+/* Tablet and smaller screens */
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        padding: 15px;
+        margin: 5px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+    
+    .mode-selection {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        width: 100%;
+        justify-items: center;
+        gap: 15px;
+    }
+    
+    .mode-selection .mode-btn {
+        width: 90%;
+        max-width: 300px;
+        justify-self: center;
+        font-size: 1.2em;
+        padding: 15px 30px;
+    }
+    
+    .mode-selection .mode-btn:nth-child(5) {
+        grid-column: 1;
+        justify-self: center;
+        width: 90%;
+        max-width: 300px;
+    }
+
+    .operation-mode-selection {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        width: 100%;
+        justify-items: center;
+        gap: 15px;
+    }
+    
+    .operation-mode-selection .mode-btn {
+        width: 90%;
+        max-width: 300px;
+        justify-self: center;
+        font-size: 1.2em;
+        padding: 15px 30px;
+    }
+    
+    .operation-mode-selection .mode-btn:nth-child(3) {
+        grid-column: 1;
+        width: 90%;
+        max-width: 300px;
+        justify-self: center;
+    }
+    
+    .game-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        min-height: 80px;
+    }
+    
+    .game-header > div:first-child {
+        flex: 1;
+        align-items: flex-start;
+    }
+    
+    .game-header-right {
+        flex: 1;
+        align-items: flex-end;
+    }
+    
+    .dinosaur-container {
+        width: 110px;
+        height: 110px;
+        top: 20px;
+    }
+    
+    .medal {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .level-end-screen .stats-table {
+        max-width: 90%;
+    }
+    
+    .level-end-screen .stats-table th,
+    .level-end-screen .stats-table td {
+        padding: 10px 6px;
+        font-size: 0.8em;
+        height: 45px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Leaderboard table - tablet adjustments */
+    .leaderboard-section .stats-table th:first-child,
+    .leaderboard-section .stats-table td:first-child {
+        width: 20%; /* Rank - slightly more space */
+    }
+    
+    .leaderboard-section .stats-table th:nth-child(2),
+    .leaderboard-section .stats-table td:nth-child(2) {
+        width: 55%; /* Username - still plenty of space */
+    }
+    
+    .leaderboard-section .stats-table th:last-child,
+    .leaderboard-section .stats-table td:last-child {
+        width: 25%; /* Score */
+    }
+    
+    .level-end-screen .stats-table th,
+    .level-end-screen .stats-table td {
+        padding: 6px 8px;
+        font-size: 0.85em;
+    }
+    
+    /* Results table - tablet adjustments */
+    .level-end-screen .stats-table th:first-child,
+    .level-end-screen .stats-table td:first-child {
+        width: 25%;
+    }
+    
+    .level-end-screen .stats-table th:nth-child(2),
+    .level-end-screen .stats-table td:nth-child(2) {
+        width: 45%;
+    }
+    
+    .level-end-screen .stats-table th:last-child,
+    .level-end-screen .stats-table td:last-child {
+        width: 30%;
+    }
+    
+    /* Leaderboard table - tablet adjustments */
+    .leaderboard-section .stats-table th:first-child,
+    .leaderboard-section .stats-table td:first-child {
+        width: 20%; /* Rank - slightly more space */
+    }
+    
+    .leaderboard-section .stats-table th:nth-child(2),
+    .leaderboard-section .stats-table td:nth-child(2) {
+        width: 55%; /* Username - still plenty of space */
+    }
+    
+    .leaderboard-section .stats-table th:last-child,
+    .leaderboard-section .stats-table td:last-child {
+        width: 25%; /* Score */
+    }
+}
+
+.mode-btn {
+    font-size: 1.3em;
+    padding: 20px 40px;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.mode-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.mode-btn:active {
+    transform: translateY(0);
+}
+
+.multiplication-btn {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+}
+
+.addition-btn {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+}
+
+.subtraction-btn {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+}
+
+.division-btn {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+}
+
+.mixed-btn {
+    background: linear-gradient(45deg, #9b59b6, #8e44ad);
+}
+
+.mini-btn {
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+}
+
+.level-btn {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+}
+
+.back-btn {
+    background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+}
+
+.negative-toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.negative-toggle-btn {
+    font-size: 0.9em;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #5d6d7e, #566573); /* Default OFF state - darker gray */
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.negative-toggle-btn.on {
+    background: linear-gradient(45deg, #2ecc71, #27ae60); /* ON state - green like Mini button */
+}
+
+.negative-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.negative-toggle-btn:active {
+    transform: translateY(0);
+}
+
+/* Login Screen Styles */
+.login-screen-container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    margin: 50px auto;
+}
+
+/* Hide login screen by default */
+.login-screen-container.hidden {
+    display: none;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 40px;
+}
+
+.login-container h2 {
+    color: #ffd93d;
+    font-size: 1.8em;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.username-input {
+    font-size: 1.2em;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    text-align: center;
+    width: 250px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+.username-input:focus {
+    outline: none;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.login-btn {
+    font-size: 1.1em;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+/* Username Display Styles */
+.username-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.username-display span {
+    color: #ffd93d;
+    font-size: 0.9em;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.logout-btn {
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: relative;
+    min-height: 80px; /* Ensure enough space for dinosaur */
+}
+
+/* Left side: Mode and Score */
+.game-header > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    flex: 1;
+}
+
+/* Right side: Timer and Give Up button */
+.game-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+    flex: 1;
+}
+
+/* Center: Dinosaur (positioned between score and timer) */
+.dinosaur-container {
+    position: absolute;
+    left: 50%;
+    top: 45px;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 130px;
+    z-index: 10;
+}
+
+.mode-display {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffd93d;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.level-display {
+    font-size: 1em;
+    font-weight: bold;
+    color: #4ecdc4;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-top: 5px;
+}
+
+.score {
+    font-size: 1.4em;
+    font-weight: bold;
+    position: relative;
+}
+
+.timer {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #ffd93d;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 2px solid #ffd93d;
+}
+
+.timer.warning {
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.question {
+    font-size: 1.8em;
+    margin: 10px 0 20px 0;
+    font-weight: bold;
+}
+
+.answer-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.answer-input {
+    font-size: 1.4em;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    text-align: center;
+    width: 180px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+.answer-input:focus {
+    outline: none;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Hide spinner buttons for number inputs */
+.answer-input::-webkit-outer-spin-button,
+.answer-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.answer-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.number-keyboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: fit-content;
+    max-width: 300px;
+    margin: 10px auto 20px auto;
+    justify-items: center;
+}
+
+.number-btn {
+    font-size: 1.2em;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    aspect-ratio: 1;
+}
+
+.number-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.number-btn:active {
+    transform: scale(0.95);
+}
+
+.clear-btn {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+}
+
+button {
+    font-size: 1.1em;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 8px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.game-over {
+    font-size: 1.6em;
+    margin: 20px 0;
+    color: #ff6b6b;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.victory-message {
+    font-size: 1.6em;
+    margin: 20px 0;
+    color: #4ecdc4;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.level-end-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+}
+
+.level-end-screen .end-title {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #f8f9fa;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 20px;
+}
+
+.level-end-screen .stats-table {
+    border-collapse: collapse;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+    max-width: 90%;
+    table-layout: fixed;
+}
+
+.level-end-screen .stats-table th,
+.level-end-screen .stats-table td {
+    padding: 12px 8px;
+    text-align: center;
+    font-size: clamp(0.8em, 2.5vw, 1em);
+    font-weight: bold;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 50px; /* Equal height for all rows */
+    vertical-align: middle;
+}
+
+/* Results table column widths (Final Score / Your Best / Accuracy / Questions) - 4 equal columns */
+.level-end-screen .stats-table th:first-child,
+.level-end-screen .stats-table td:first-child {
+    width: 25%; /* Final Score */
+}
+
+.level-end-screen .stats-table th:nth-child(2),
+.level-end-screen .stats-table td:nth-child(2) {
+    width: 25%; /* Your Best */
+}
+
+.level-end-screen .stats-table th:nth-child(3),
+.level-end-screen .stats-table td:nth-child(3) {
+    width: 25%; /* Accuracy */
+}
+
+.level-end-screen .stats-table th:nth-child(4),
+.level-end-screen .stats-table td:nth-child(4) {
+    width: 25%; /* Questions */
+}
+
+/* Leaderboard table column widths (Rank / Username / Score) */
+.leaderboard-section .stats-table th:first-child,
+.leaderboard-section .stats-table td:first-child {
+    width: 15%; /* Rank */
+}
+
+.leaderboard-section .stats-table th:nth-child(2),
+.leaderboard-section .stats-table td:nth-child(2) {
+    width: 60%; /* Username - more space for long names */
+}
+
+.leaderboard-section .stats-table th:last-child,
+.leaderboard-section .stats-table td:last-child {
+    width: 25%; /* Score */
+}
+
+/* Table-specific responsive classes - only for result tables */
+.level-end-screen .stats-table,
+.leaderboard-section .stats-table {
+    width: 100%;
+    max-width: 90%;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+.level-end-screen .stats-table th,
+.level-end-screen .stats-table td,
+.leaderboard-section .stats-table th,
+.leaderboard-section .stats-table td {
+    text-align: center;
+    padding: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+/* Username cells should use ellipsis for long names on desktop */
+.leaderboard-section .stats-table td:nth-child(2) {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Mobile-first responsive stats display */
+@media (max-width: 480px) {
+    .level-end-screen .stats-table {
+        display: table; /* Show results table on all screens */
+        max-width: 90%;
+        font-size: 0.6em;
+    }
+    
+    .level-end-screen .stats-table th,
+    .level-end-screen .stats-table td {
+        padding: 6px 3px;
+        font-size: 0.6em;
+        height: 35px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .level-end-screen .mobile-stats {
+        display: none; /* Hide mobile stats cards */
+    }
+    
+    /* Leaderboard table - mobile adjustments */
+    .leaderboard-section .stats-table {
+        font-size: 0.8em;
+        width: 100%;
+        max-width: 90%;
+    }
+    
+    .leaderboard-section .stats-table th,
+    .leaderboard-section .stats-table td {
+        padding: 4px 6px;
+        font-size: 0.8em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .leaderboard-section .stats-table th:first-child,
+    .leaderboard-section .stats-table td:first-child {
+        width: 20%; /* Rank */
+    }
+    
+    .leaderboard-section .stats-table th:nth-child(2),
+    .leaderboard-section .stats-table td:nth-child(2) {
+        width: 50%; /* Username - truncated with ellipsis */
+    }
+    
+    .leaderboard-section .stats-table th:last-child,
+    .leaderboard-section .stats-table td:last-child {
+        width: 30%; /* Score */
+    }
+}
+
+
+/* Desktop and tablet - hide mobile stats */
+@media (min-width: 481px) {
+    .level-end-screen .mobile-stats {
+        display: none;
+    }
+}
+
+/* Mobile stats cards */
+.mobile-stats {
+    display: none;
+    width: 100%;
+    max-width: 100%;
+}
+
+.mobile-stats .stat-card {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-stats .stat-card .stat-label {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #ffd93d;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.mobile-stats .stat-card .stat-value {
+    font-size: 1em;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.level-end-screen .stats-table th {
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.level-end-screen .stats-table td {
+    background: rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.new-best-score {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin: 10px 0;
+    text-align: center;
+}
+
+.leaderboard-section {
+    margin-top: 20px;
+}
+
+.leaderboard-section h3 {
+    color: #ffd93d;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.current-player {
+    background: rgba(255, 215, 0, 0.2) !important;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+
+/* Header with Username and Logout */
+.header {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2000;
+    flex-wrap: wrap;
+    max-width: calc(100vw - 20px);
+}
+
+/* Ensure header is completely hidden when it has the hidden class */
+.header.hidden {
+    display: none !important;
+}
+
+.header span {
+    font-size: 0.9em;
+    color: #ffd93d;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.header .logout-btn {
+    font-size: 0.7em;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.play-again-btn {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+}
+
+.switch-mode-btn {
+    background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+    color: #333;
+}
+
+.submit-btn {
+    background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+    color: #333;
+}
+
+.give-up-btn {
+    font-size: 0.9em;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.give-up-btn:hover {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.give-up-btn:active {
+    transform: translateY(0);
+}
+
+.game-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.score-feedback {
+    position: absolute;
+    top: -10px;
+    right: -40px;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 1000;
+    animation: scoreFeedbackAnimation 1.5s ease-out forwards;
+}
+
+.score-feedback.positive {
+    color: #4ecdc4;
+}
+
+.score-feedback.negative {
+    color: #ff6b6b;
+}
+
+@keyframes scoreFeedbackAnimation {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px) scale(1);
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    body {
+        padding: 2px;
+    }
+    
+    .container {
+        padding: 10px;
+        margin: 2px;
+        border-radius: 15px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+    
+    .question {
+        font-size: 1.3em;
+        margin: 8px 0 15px 0;
+    }
+    
+    .timer {
+        font-size: 1.8em;
+        padding: 8px 16px;
+    }
+    
+    .give-up-btn {
+        font-size: 0.9em;
+        padding: 8px 16px;
+    }
+    
+    .answer-section {
+        flex-direction: column;
+        gap: 10px;
+        margin: 15px 0;
+    }
+    
+    .answer-input {
+        width: 140px;
+        font-size: 1.2em;
+        padding: 12px;
+    }
+    
+    .number-keyboard {
+        max-width: 220px;
+        gap: 8px;
+        margin: 8px auto 15px auto;
+    }
+    
+    .number-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1em;
+    }
+
+    .dinosaur-container {
+        width: 100px;
+        height: 100px;
+        top: 50px;
+    }
+
+    .medal {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+    }
+
+    .score-feedback {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1em;
+        margin-top: 5px;
+    }
+    
+    .mode-btn {
+        font-size: 1.1em;
+        padding: 12px 20px;
+        width: 95%;
+        max-width: 280px;
+    }
+    
+    .login-container {
+        padding: 20px;
+    }
+    
+    .login-container h2 {
+        font-size: 1.5em;
+    }
+    
+    .username-input {
+        width: 200px;
+        font-size: 1.1em;
+        padding: 10px 14px;
+    }
+    
+    .login-btn {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+    
+    .header {
+        top: 5px;
+        right: 5px;
+        gap: 6px;
+        max-width: calc(100vw - 10px);
+    }
+    
+    .header span {
+        font-size: 0.8em;
+        max-width: 100px;
+    }
+    
+    .header .logout-btn {
+        font-size: 0.6em;
+        padding: 3px 6px;
+    }
+    
+    .game-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        min-height: 70px;
+    }
+    
+    .game-header > div:first-child {
+        flex: 1;
+        align-items: flex-start;
+    }
+    
+    .game-header-right {
+        flex: 1;
+        align-items: flex-end;
+        padding-right: 10px; /* Same margin as Give Up button */
+    }
+    
+    .timer {
+        margin-right: 0; /* Remove any existing margin */
+    }
+    
+    .dinosaur-container {
+        width: 90px;
+        height: 90px;
+        top: 75px;
+    }
+    
+    .mode-display {
+        font-size: 1.1em;
+    }
+    
+    .level-display {
+        font-size: 0.9em;
+    }
+    
+    .score {
+        font-size: 1.2em;
+    }
+    
+    /* Mobile stats cards are handled by the mobile-stats CSS above */
+    
+    /* Leaderboard table - very small screen adjustments */
+    .leaderboard-section .stats-table th,
+    .leaderboard-section .stats-table td {
+        padding: 3px 4px;
+        font-size: 0.7em;
+    }
+    
+    .leaderboard-section .stats-table th:first-child,
+    .leaderboard-section .stats-table td:first-child {
+        width: 25%; /* Rank */
+    }
+    
+    .leaderboard-section .stats-table th:nth-child(2),
+    .leaderboard-section .stats-table td:nth-child(2) {
+        width: 45%; /* Username - more space for readability */
+    }
+    
+    .leaderboard-section .stats-table th:last-child,
+    .leaderboard-section .stats-table td:last-child {
+        width: 30%; /* Score */
+    }
+    
+    .game-buttons {
+        gap: 8px;
+    }
+    
+    .game-buttons button {
+        font-size: 1.1em;
+        padding: 12px 25px;
+        width: 90%;
+        max-width: 250px;
+    }
+    
+    .negative-toggle-btn {
+        font-size: 0.8em;
+        padding: 6px 12px;
+    }
+}
+
+/* Very small screens (iPhone SE, etc.) */
+@media (max-width: 375px) {
+    body {
+        padding: 1px;
+    }
+    
+    .container {
+        padding: 8px;
+        margin: 1px;
+        border-radius: 12px;
+    }
+    
+    h1 {
+        font-size: 1.3em;
+        margin-bottom: 12px;
+    }
+    
+    .question {
+        font-size: 1.2em;
+        margin: 6px 0 12px 0;
+    }
+    
+    .timer {
+        font-size: 1.8em;
+        padding: 8px 16px;
+    }
+    
+    .answer-input {
+        width: 120px;
+        font-size: 1.1em;
+        padding: 10px;
+    }
+    
+    .number-keyboard {
+        max-width: 200px;
+        gap: 6px;
+    }
+    
+    .number-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9em;
+    }
+    
+    .dinosaur-container {
+        width: 80px;
+        height: 80px;
+        top: 40px;
+    }
+    
+    .medal {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+    }
+    
+    .mode-btn {
+        font-size: 1em;
+        padding: 10px 16px;
+        width: 98%;
+        max-width: 260px;
+    }
+    
+    .login-container h2 {
+        font-size: 1.3em;
+    }
+    
+    .username-input {
+        width: 180px;
+        font-size: 1em;
+        padding: 8px 12px;
+    }
+    
+    .login-btn {
+        font-size: 0.9em;
+        padding: 8px 16px;
+    }
+    
+    .header span {
+        font-size: 0.7em;
+        max-width: 80px;
+    }
+    
+    .header .logout-btn {
+        font-size: 0.5em;
+        padding: 2px 4px;
+    }
+    
+    /* Mobile stats cards are handled by the mobile-stats CSS above */
+    
+    /* Leaderboard table - extra small screen adjustments */
+    .leaderboard-section .stats-table th,
+    .leaderboard-section .stats-table td {
+        padding: 2px 3px;
+        font-size: 0.65em;
+    }
+    
+    .leaderboard-section .stats-table th:first-child,
+    .leaderboard-section .stats-table td:first-child {
+        width: 30%; /* Rank - more space for very small screens */
+    }
+    
+    .leaderboard-section .stats-table th:nth-child(2),
+    .leaderboard-section .stats-table td:nth-child(2) {
+        width: 40%; /* Username - still readable */
+    }
+    
+    .leaderboard-section .stats-table th:last-child,
+    .leaderboard-section .stats-table td:last-child {
+        width: 30%; /* Score */
+    }
+    
+    .game-buttons button {
+        font-size: 1.1em;
+        padding: 12px 25px;
+        width: 95%;
+        max-width: 220px;
+    }
+}
+

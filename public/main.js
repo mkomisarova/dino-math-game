@@ -1,6 +1,80 @@
 // Main game logic module
+import { db, collection, getDocs, query, where, orderBy, limit, setDoc, getDoc, doc, onSnapshot } from "./firebase-config.js";
+import { UserManager } from "./user.js";
+import { UIManager } from "./ui.js";
+import { LeaderboardManager } from "./leaderboard.js";
+import { saveGlobalScore, getUserBestScore, getLeaderboard, subscribeToLeaderboard } from "./score-service.js";
+import { getActiveUsername } from './user-service.js';
+
+// Test that the import is working
+console.log('✅ main.js loaded, getActiveUsername imported:', typeof getActiveUsername);
+
+/*
+ * FIREBASE FIRESTORE INDEX REQUIREMENTS
+ * =====================================
+ * 
+ * This application requires the following composite indexes to be created in Firebase Console:
+ * 
+ * 1. Leaderboard Query Index:
+ *    - Collection: scores
+ *    - Fields: mode (Ascending), score (Descending)
+ *    - Used by: fetchLeaderboard(), listenToLeaderboard()
+ * 
+ * 2. User Best Score Query Index:
+ *    - Collection: scores
+ *    - Fields: username (Ascending), mode (Ascending), type (Ascending)
+ *    - Used by: getUserBestScore()
+ * 
+ * To create these indexes:
+ * 1. Go to Firebase Console → Firestore → Indexes
+ * 2. Click "Create Index"
+ * 3. Select the "scores" collection
+ * 4. Add the required fields in the specified order
+ * 5. Set the sort order (Ascending/Descending) as specified above
+ * 6. Click "Create"
+ * 
+ * The indexes will be built automatically and queries will work once complete.
+ * You can monitor index creation progress in the Firebase Console.
+ */
+
+// Global game instance
+let gameInstance = null;
+
+// Function to initialize game with username - make it available globally
+function initializeGame(username) {
+    console.log('🟢 initializeGame called with username:', username);
+    
+    // Validate username
+    if (!username || username.trim() === '') {
+        console.error('❌ Invalid username provided to initializeGame:', username);
+        return;
+    }
+    
+    if (gameInstance) {
+        console.log('🟢 Cleaning up existing game instance...');
+        // Clean up existing game if any
+        if (gameInstance.timer) {
+            gameInstance.stopTimer();
+        }
+        // Clean up leaderboard listener
+        gameInstance.cleanupLeaderboardListener();
+        // Clear the old instance
+        gameInstance = null;
+    }
+    
+    console.log('🟢 Creating new MathPracticeGame instance...');
+    gameInstance = new MathPracticeGame(username);
+    console.log('🟢 Game instance created successfully with username:', gameInstance.username);
+}
+
+// Make initializeGame available globally
+window.initializeGame = initializeGame;
+
 class MathPracticeGame {
-    constructor() {
+    constructor(username) {
+        console.log('🟢 MathPracticeGame constructor called with username:', username);
+        // Note: We don't store username in this.username anymore
+        // All score saving will read from localStorage using getActiveUsername()
         this.score = 0;
         this.currentAnswer = 0;
         this.gameMode = 'multiplication'; // 'multiplication', 'addition', 'subtraction', 'division', or 'mixed'
@@ -18,6 +92,8 @@ class MathPracticeGame {
         // Negative numbers toggle
         this.allowNegatives = false;
         this.selectedOperation = null;
+        // Leaderboard listener
+        this.leaderboardListener = null;
         
         // Initialize modules
         this.user = new UserManager();
@@ -34,18 +110,30 @@ class MathPracticeGame {
     }
 
     initializeGame() {
+        console.log('🟢 MathPracticeGame.initializeGame() called');
+        
         // Initialize UI elements
+        console.log('🟢 Initializing UI elements...');
         this.ui.initializeElements();
         this.ui.attachEventListeners();
         
         // Initialize user elements
+        console.log('🟢 Initializing user elements...');
         this.user.initializeUserElements();
         
-        // Check login status
-        this.user.checkLoginStatus();
+        // Show main menu since we have a username
+        console.log('🟢 Showing main menu...');
+        this.ui.showMainMenu();
+        console.log('🟢 Game initialization completed successfully');
     }
 
     selectOperation(operation) {
+        // Clean up any existing leaderboard subscription
+        this.leaderboard.cleanup();
+        
+        // Clean up leaderboard listener
+        this.cleanupLeaderboardListener();
+        
         this.ui.selectOperation(operation);
     }
 
@@ -606,23 +694,159 @@ class MathPracticeGame {
         }
     }
 
-    endGame() {
+    async endGame() {
         this.stopTimer();
-        this.leaderboard.displayGameOverScreen();
+        
+        // Calculate accuracy
+        const accuracy = this.totalQuestions > 0 ? Math.round((this.correctAnswers / this.totalQuestions) * 100) : 0;
+        
+        // Save score to Firestore using saveGlobalScore (handles duplicates and best score logic)
+        let username;
+        try {
+            username = getActiveUsername();
+        } catch (error) {
+            console.error('❌ Error getting active username:', error);
+            username = null;
+        }
+        
+        console.log(`🎮 Attempting to save score - Active username: ${username}, Score: ${this.score}`);
+        
+        // Validate username before saving
+        if (!username || username.trim() === '') {
+            console.error('❌ BLOCKED: No active username set, cannot save score');
+            return;
+        }
+        
+        try {
+            const result = await saveGlobalScore({ 
+                username: username, 
+                mode: this.gameMode, 
+                gameType: this.gameType, 
+                score: this.score 
+            });
+            if (result && result.saved) {
+                console.log('✅ Game data saved successfully to Firestore:', result.reason);
+            } else {
+                console.log('⏭️ Score not saved:', result ? result.reason : 'invalid parameters');
+            }
+        } catch (error) {
+            console.error("❌ Error saving score:", error);
+        }
+        
+        // Score already saved above with saveGlobalScore
+        
+        // Get user's best score for display
+        const userBestScore = await getUserBestScore(username, this.gameMode, this.gameType);
+        const isNewBest = this.score > userBestScore;
+        
+        // Start listening to leaderboard for real-time updates
+        this.listenToLeaderboard(this.gameMode, this.gameType);
+        
+        // Display game over screen with personal best (leaderboard will update in real-time)
+        await this.leaderboard.displayGameOverScreenWithPersonalBest(accuracy, userBestScore, isNewBest);
+    }
+    
+
+    listenToLeaderboard(mode, type) {
+        // Unsubscribe from previous listener if exists
+        if (this.leaderboardListener) {
+            this.leaderboardListener();
+            this.leaderboardListener = null;
+        }
+
+        try {
+            // Use the centralized subscribeToLeaderboard function
+            this.leaderboardListener = subscribeToLeaderboard(mode, type, (leaderboard) => {
+                // Update the leaderboard display
+                this.updateLeaderboardDisplay(leaderboard);
+            });
+            
+            console.log('Started listening to leaderboard for', mode, type);
+        } catch (error) {
+            console.error('Error setting up leaderboard listener:', error);
+        }
+    }
+
+    updateLeaderboardDisplay(leaderboard) {
+        // Find the leaderboard section and update it
+        const gameOverMessage = this.ui.gameOverMessage;
+        if (gameOverMessage) {
+            const leaderboardSection = gameOverMessage.querySelector('.leaderboard-section');
+            if (leaderboardSection) {
+                // Get current active username for highlighting
+                const currentUsername = getActiveUsername();
+                
+                let leaderboardHTML = '';
+                if (leaderboard.length === 0) {
+                    leaderboardHTML = '<div class="leaderboard-section"><h3>Global Leaderboard</h3><p>No scores yet</p></div>';
+                } else {
+                    leaderboardHTML = `
+                        <div class="leaderboard-section">
+                            <h3>Global Leaderboard</h3>
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Username</th>
+                                        <th>Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${leaderboard.map((entry, index) => `
+                                        <tr class="${entry.username === currentUsername ? 'current-player' : ''}">
+                                            <td>${index + 1}</td>
+                                            <td>${entry.username}</td>
+                                            <td>${entry.score}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                leaderboardSection.outerHTML = leaderboardHTML;
+            }
+        }
+    }
+
+    cleanupLeaderboardListener() {
+        if (this.leaderboardListener) {
+            this.leaderboardListener();
+            this.leaderboardListener = null;
+            console.log('Cleaned up leaderboard listener');
+        }
     }
 
     resetGame() {
+        // Clean up leaderboard subscription
+        this.leaderboard.cleanup();
+        
+        // Clean up leaderboard listener
+        this.cleanupLeaderboardListener();
+        
         // Restore the top dinosaur visibility
         this.ui.dinosaurImage.style.display = 'block';
         this.startGame(this.gameMode, this.gameType);
     }
 
-    giveUp() {
-        this.endGame();
+    async giveUp() {
+        await this.endGame();
     }
 }
 
-// Initialize the game when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new MathPracticeGame();
+
+// Initialize the login system when the page loads
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🟣 DOMContentLoaded event fired - starting initialization...');
+    
+    // Create user manager for login handling
+    console.log('🟣 Creating UserManager...');
+    const userManager = new UserManager();
+    userManager.initializeUserElements();
+    
+    // Check login status (this will handle auto-login or show login screen)
+    console.log('🟣 Checking login status...');
+    await userManager.checkLoginStatus();
+    
+    console.log('🟣 Initial page load completed');
 });
