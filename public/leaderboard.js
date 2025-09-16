@@ -83,12 +83,20 @@ class LeaderboardManager {
         const title = "Time's Up!";
         
         try {
-            // Get current best score from Firestore
-            const currentBestScore = await getUserBestScore(this.game.username, this.game.gameMode, this.game.gameType);
-            const isNewBest = this.game.score > currentBestScore;
+            // Use the Firestore best score that was fetched after saving (single source of truth)
+            let firestoreBestScore = this.game.firestoreBestScore;
             
-            // Use the higher of current score or existing best score for display
-            const displayBestScore = Math.max(this.game.score, currentBestScore);
+            // Fallback: if firestoreBestScore is not available, fetch it now
+            if (firestoreBestScore === undefined) {
+                firestoreBestScore = await getUserBestScore(this.game.username, this.game.gameMode, this.game.gameType);
+            }
+            
+            // Use the final score that was captured when the game ended
+            const finalScore = this.game.finalScore || this.game.score;
+            const isNewBest = finalScore > firestoreBestScore;
+            
+            // Always use the Firestore best score for display (single source of truth)
+            const displayBestScore = firestoreBestScore;
             
             // Set up live leaderboard subscription
             this.setupLiveLeaderboard(this.game.gameMode, this.game.gameType);
@@ -112,7 +120,7 @@ class LeaderboardManager {
                         </thead>
                         <tbody>
                             <tr>
-                                <td>${this.game.score}</td>
+                                <td>${finalScore}</td>
                                 <td>${displayBestScore}</td>
                                 <td>${accuracy}%</td>
                                 <td>${this.game.totalQuestions}</td>
@@ -122,7 +130,7 @@ class LeaderboardManager {
                     <div class="mobile-stats">
                         <div class="stat-card">
                             <span class="stat-label">Final Score</span>
-                            <span class="stat-value">${this.game.score}</span>
+                            <span class="stat-value">${finalScore}</span>
                         </div>
                         <div class="stat-card">
                             <span class="stat-label">Your Best</span>

@@ -95,6 +95,9 @@ class MathPracticeGame {
         // Leaderboard listener
         this.leaderboardListener = null;
         
+        // Game state flag to prevent race conditions
+        this.gameFinished = false;
+        
         // Initialize modules
         this.user = new UserManager();
         this.ui = new UIManager();
@@ -167,6 +170,8 @@ class MathPracticeGame {
         // Reset accuracy tracking
         this.totalQuestions = 0;
         this.correctAnswers = 0;
+        // Reset game state
+        this.gameFinished = false;
         // Set timer based on game type
         this.timeLeft = type === 'level' ? 180 : 60; // 3 minutes for level mode, 1 minute for mini mode
         this.ui.updateScore();
@@ -607,6 +612,12 @@ class MathPracticeGame {
     }
 
     submitAnswer() {
+        // Prevent score updates after game is finished
+        if (this.gameFinished) {
+            console.log('🚫 Game already finished, ignoring answer submission');
+            return;
+        }
+        
         // Check if answer field is empty or only whitespace
         if (!this.ui.answerInput.value.trim()) {
             return; // Do nothing if empty
@@ -695,7 +706,13 @@ class MathPracticeGame {
     }
 
     async endGame() {
+        // Mark game as finished to prevent any further score updates
+        this.gameFinished = true;
         this.stopTimer();
+        
+        // Capture the final score at this exact moment
+        const finalScore = this.score;
+        console.log(`🏁 Game ended - Final score captured: ${finalScore}`);
         
         // Calculate accuracy
         const accuracy = this.totalQuestions > 0 ? Math.round((this.correctAnswers / this.totalQuestions) * 100) : 0;
@@ -722,10 +739,10 @@ class MathPracticeGame {
                 username: username, 
                 mode: this.gameMode, 
                 gameType: this.gameType, 
-                score: this.score 
+                score: finalScore 
             });
             if (result && result.saved) {
-                console.log('✅ Game data saved successfully to Firestore:', result.reason);
+                console.log(`✅ Game data saved successfully to Firestore with final score: ${finalScore}`, result.reason);
             } else {
                 console.log('⏭️ Score not saved:', result ? result.reason : 'invalid parameters');
             }
@@ -733,17 +750,21 @@ class MathPracticeGame {
             console.error("❌ Error saving score:", error);
         }
         
-        // Score already saved above with saveGlobalScore
-        
-        // Get user's best score for display
+        // After saving, get the updated best score from Firestore (single source of truth)
         const userBestScore = await getUserBestScore(username, this.gameMode, this.gameType);
-        const isNewBest = this.score > userBestScore;
+        const isNewBest = finalScore > userBestScore;
+        
+        // Store the Firestore best score for consistent display
+        this.firestoreBestScore = userBestScore;
         
         // Start listening to leaderboard for real-time updates
         this.listenToLeaderboard(this.gameMode, this.gameType);
         
+        // Store the final score in the game object for the leaderboard to use
+        this.finalScore = finalScore;
+        
         // Display game over screen with personal best (leaderboard will update in real-time)
-        await this.leaderboard.displayGameOverScreenWithPersonalBest(accuracy, userBestScore, isNewBest);
+        await this.leaderboard.displayGameOverScreen();
     }
     
 
