@@ -100,6 +100,7 @@ class UIManager {
         this.mainContainer.classList.remove('hidden');
         this.modeSelectionScreen.classList.add('hidden');
         this.operationModeScreen.classList.remove('hidden');
+        this.gameOverScreen.classList.add('hidden');
         // Show header with logout button on operation selection screen
         this.game.user.showHeader();
     }
@@ -108,6 +109,7 @@ class UIManager {
         this.mainContainer.classList.remove('hidden');
         this.operationModeScreen.classList.add('hidden');
         this.modeSelectionScreen.classList.remove('hidden');
+        this.gameOverScreen.classList.add('hidden');
         // Show header with logout button when returning to modes
         this.game.user.showHeader();
     }
