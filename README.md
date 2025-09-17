@@ -1,6 +1,7 @@
-# Math Practice Game
+# Dino Mental Math game
 
-A fun math practice game with real-time leaderboards powered by Firebase Firestore.
+A fun mental math practice game with real-time leaderboards and a dinosaur you can help win the gold medal. 🦖✨
+I vibecoded this for my sister to make practicing math more fun. Try to beat my records! 🥇
 
 ## Features
 
