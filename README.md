@@ -3,6 +3,8 @@
 A fun mental math practice game with real-time leaderboards and a dinosaur you can help win the gold medal. 🦖✨
 I vibecoded this for my sister to make practicing math more fun. Try to beat my records! 🥇
 
+👉 **[Play it here!](https://dino-math-game.web.app/)** 👈
+
 ## Features
 
 - Multiple game modes: Addition, Subtraction, Multiplication, Division, Mixed
