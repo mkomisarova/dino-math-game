@@ -277,6 +277,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
             case 2: // Sum > 10 and ≤ 20, both > 5
                 answer = Math.floor(Math.random() * 10) + 11; // 11-20
@@ -284,6 +285,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
             case 3: // Sum > 20 and ≤ 50, both > 20
                 answer = Math.floor(Math.random() * 30) + 21; // 21-50
@@ -291,6 +293,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
             case 4: // Sum > 50 and ≤ 100, both > 10
                 answer = Math.floor(Math.random() * 50) + 51; // 51-100
@@ -298,6 +301,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
             case 5: // Sum > 100 and ≤ 1000, both > 100
                 answer = Math.floor(Math.random() * 800) + 201; // 201-1000
@@ -305,6 +309,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
             case 6: // Sum > 1000 and ≤ 10000, both > 1000
                 answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
@@ -312,6 +317,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
             case 7: // Sum > 10000 and ≤ 20000, both > 1000
                 answer = Math.floor(Math.random() * 10000) + 10001; // 10001-20000
@@ -319,6 +325,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
             case 8: // Sum > 20000 and ≤ 100000, both > 10000
                 answer = Math.floor(Math.random() * 80000) + 20001; // 20001-100000
@@ -326,6 +333,7 @@ class MathPracticeGame {
                 num2 = answer - num1;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 + num2;
                 break;
         }
         return [num1, num2, answer];
@@ -340,6 +348,7 @@ class MathPracticeGame {
                 num2 = num1 - answer;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
             case 2: // Result > 10 and ≤ 20, both > 5
                 answer = Math.floor(Math.random() * 10) + 11; // 11-20
@@ -347,6 +356,7 @@ class MathPracticeGame {
                 num2 = num1 - answer;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
             case 3: // Result > 20 and ≤ 50, both > 20
                 answer = Math.floor(Math.random() * 30) + 21; // 21-50
@@ -354,31 +364,47 @@ class MathPracticeGame {
                 num2 = num1 - answer;
                 num1 = this.applyNegativeProbability(num1);
                 num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
             case 4: // Result > 50 and ≤ 100, both > 10
                 answer = Math.floor(Math.random() * 50) + 51; // 51-100
                 num1 = answer + Math.floor(Math.random() * 50) + 11; // answer+11 to answer+60
                 num2 = num1 - answer;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
             case 5: // Result > 100 and ≤ 1000, both > 100
                 answer = Math.floor(Math.random() * 800) + 201; // 201-1000
                 num1 = answer + Math.floor(Math.random() * 500) + 101; // answer+101 to answer+600
                 num2 = num1 - answer;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
             case 6: // Result > 1000 and ≤ 10000, both > 1000
                 answer = Math.floor(Math.random() * 8000) + 2001; // 2001-10000
                 num1 = answer + Math.floor(Math.random() * 5000) + 1001; // answer+1001 to answer+6000
                 num2 = num1 - answer;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
             case 7: // Result > 10000 and ≤ 20000, both > 1000
                 answer = Math.floor(Math.random() * 10000) + 10001; // 10001-20000
                 num1 = answer + Math.floor(Math.random() * 5000) + 1001; // answer+1001 to answer+6000
                 num2 = num1 - answer;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
             case 8: // Result > 20000 and ≤ 100000, both > 10000
                 answer = Math.floor(Math.random() * 80000) + 20001; // 20001-100000
                 num1 = answer + Math.floor(Math.random() * 50000) + 10001; // answer+10001 to answer+60000
                 num2 = num1 - answer;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 - num2;
                 break;
         }
         return [num1, num2, answer];
@@ -399,6 +425,8 @@ class MathPracticeGame {
                     num1 = factor;
                     num2 = answer / factor;
                 }
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
             case 2: // Both numbers multiply to > 10 and ≤ 50, numbers ≤ 10
@@ -414,6 +442,8 @@ class MathPracticeGame {
                 const combo2 = validCombos2[Math.floor(Math.random() * validCombos2.length)];
                 num1 = combo2[0];
                 num2 = combo2[1];
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
             case 3: // Both numbers multiply to > 50 and ≤ 100, numbers ≤ 10
@@ -429,6 +459,8 @@ class MathPracticeGame {
                 const combo3 = validCombos3[Math.floor(Math.random() * validCombos3.length)];
                 num1 = combo3[0];
                 num2 = combo3[1];
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
             case 4: // Product < 100, with one number > 10, other > 3
@@ -444,11 +476,15 @@ class MathPracticeGame {
                 const combo4 = validCombos4[Math.floor(Math.random() * validCombos4.length)];
                 num1 = combo4[0];
                 num2 = combo4[1];
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
             case 5: // Both numbers 10-20
                 num1 = Math.floor(Math.random() * 11) + 10; // 10-20
                 num2 = Math.floor(Math.random() * 11) + 10; // 10-20
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
             case 6: // Both numbers 10-50, at least one > 20
@@ -459,16 +495,22 @@ class MathPracticeGame {
                     num1 = Math.floor(Math.random() * 31) + 10; // 10-40
                     num2 = Math.floor(Math.random() * 31) + 21; // 21-50
                 }
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
             case 7: // Both numbers 21-99
                 num1 = Math.floor(Math.random() * 79) + 21; // 21-99
                 num2 = Math.floor(Math.random() * 79) + 21; // 21-99
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
             case 8: // Both numbers 51-99
                 num1 = Math.floor(Math.random() * 49) + 51; // 51-99
                 num2 = Math.floor(Math.random() * 49) + 51; // 51-99
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
                 answer = num1 * num2;
                 break;
         }
@@ -487,26 +529,41 @@ class MathPracticeGame {
                     num2 = Math.floor(Math.random() * 10) + 1;
                 }
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
             case 2: // Result > 10 and ≤ 50, numbers ≤ 10
                 answer = Math.floor(Math.random() * 40) + 11; // 11-50
                 num2 = Math.floor(Math.random() * 10) + 1; // 1-10
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
             case 3: // Result > 50 and ≤ 100, numbers ≤ 10
                 answer = Math.floor(Math.random() * 50) + 51; // 51-100
                 num2 = Math.floor(Math.random() * 10) + 1; // 1-10
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
             case 4: // Result < 100, with one number > 10, other > 3
                 answer = Math.floor(Math.random() * 50) + 1; // 1-50
                 num2 = Math.floor(Math.random() * 6) + 4; // 4-9
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
             case 5: // Both numbers 10-20
                 answer = Math.floor(Math.random() * 11) + 10; // 10-20
                 num2 = Math.floor(Math.random() * 11) + 10; // 10-20
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
             case 6: // Both numbers 10-50, at least one > 20
                 if (Math.random() < 0.5) {
@@ -517,16 +574,25 @@ class MathPracticeGame {
                     num2 = Math.floor(Math.random() * 30) + 21; // 21-50
                 }
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
             case 7: // Both numbers 21-99
                 answer = Math.floor(Math.random() * 79) + 21; // 21-99
                 num2 = Math.floor(Math.random() * 79) + 21; // 21-99
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
             case 8: // Both numbers 51-99
                 answer = Math.floor(Math.random() * 49) + 51; // 51-99
                 num2 = Math.floor(Math.random() * 49) + 51; // 51-99
                 num1 = answer * num2;
+                num1 = this.applyNegativeProbability(num1);
+                num2 = this.applyNegativeProbability(num2);
+                answer = num1 / num2;
                 break;
         }
         return [num1, num2, answer];
